@@ -85,6 +85,15 @@ final class NotchDimensions {
     /// The physical bottom corner radius of the MacBook notch
     let hardwareBottomCornerRadius: CGFloat = 14
     
+    // MARK: - Open Dimensions (Minimum)
+    
+    /// The minimum width of the notch when expanded. The notch may grow
+    /// wider than this to accommodate more widgets.
+    let minOpenWidth: CGFloat = 500
+    
+    /// The minimum height of the notch when expanded.
+    let minOpenHeight: CGFloat = 180
+    
     // MARK: - Convenience
     
     /// The size of the usable notch area without the outward top corners
@@ -95,5 +104,10 @@ final class NotchDimensions {
     /// The closed notch size (used for initial display and hit-testing)
     var closedSize: CGSize {
         CGSize(width: notchWidth, height: notchHeight)
+    }
+    
+    /// The minimum open size (used for window frame sizing)
+    var minOpenSize: CGSize {
+        CGSize(width: minOpenWidth, height: minOpenHeight)
     }
 }

@@ -23,6 +23,27 @@ enum NotchState: Equatable {
 @MainActor
 class NotchViewModel: ObservableObject {
 
+    // MARK: - Dynamic Open Dimensions
+
+    /// The desired open width, updated by WidgetShelf when content is measured.
+    /// Always clamped to at least `NotchDimensions.shared.minOpenWidth`.
+    @Published var desiredOpenWidth: CGFloat = NotchDimensions.shared.minOpenWidth
+
+    /// The actual open width used for layout, guaranteed ≥ minimum.
+    var openWidth: CGFloat {
+        max(NotchDimensions.shared.minOpenWidth, desiredOpenWidth)
+    }
+
+    /// The open height (currently fixed at minOpenHeight).
+    var openHeight: CGFloat {
+        NotchDimensions.shared.minOpenHeight
+    }
+
+    /// Convenience: the current open size.
+    var openSize: CGSize {
+        CGSize(width: openWidth, height: openHeight)
+    }
+
     // MARK: - Widget Batches
 
     /// All active widget batches. Each DropZoneView binds to one.
@@ -180,4 +201,63 @@ class NotchViewModel: ObservableObject {
     func lockNotch() { isLocked = true }
     func unlockNotch() { isLocked = false }
     func toggleLock() { isLocked.toggle() }
+
+    // MARK: - AirDrop Sharing
+
+    @MainActor
+    func shareToAirDrop(items: [Any], from view: NSView? = nil) {
+        let service = NSSharingService(named: .sendViaAirDrop) ?? NSSharingService.sharingServices(forItems: items).first(where: { $0.title == "AirDrop" })
+        if let service = service, service.canPerform(withItems: items) {
+            service.perform(withItems: items)
+        } else {
+            let picker = NSSharingServicePicker(items: items)
+            if let view = view {
+                picker.show(relativeTo: .zero, of: view, preferredEdge: .minY)
+            }
+        }
+    }
+
+    @MainActor
+    func pickFilesForAirDrop(from view: NSView? = nil) {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = true
+        panel.title = "Select Files for AirDrop"
+        
+        if panel.runModal() == .OK, !panel.urls.isEmpty {
+            self.shareToAirDrop(items: panel.urls, from: view)
+        }
+    }
+
+    func handleAirDropDrop(providers: [NSItemProvider], from view: NSView? = nil) async {
+        var items: [Any] = []
+        for provider in providers {
+            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
+                if let result = try? await provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier) {
+                    if let data = result as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
+                        items.append(url)
+                    } else if let url = result as? URL {
+                        items.append(url)
+                    }
+                }
+            } else if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                if let result = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier) {
+                    if let data = result as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) {
+                        items.append(url)
+                    } else if let url = result as? URL {
+                        items.append(url)
+                    }
+                }
+            }
+        }
+        
+        if items.isEmpty {
+            items = providers // Fallback to raw providers if url loading fails or it's text
+        }
+        
+        await MainActor.run {
+            self.shareToAirDrop(items: items, from: view)
+        }
+    }
 }

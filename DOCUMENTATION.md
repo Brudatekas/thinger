@@ -24,17 +24,16 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 ## Chapter 3: UI Core
 
 ### 3.1 `NotchView.swift`
-**Role:** The primary visual component that defines the notch's shape and two-phase hover animation.
+**Role:** The primary visual component that defines the notch's shape and expand/collapse animation.
 
 **Detailed Flow:**
-1.  **KeyframeAnimator**: Uses `keyframeAnimator(initialValue:trigger:)` with a `NotchAnimationValues` struct to animate `width`, `height`, `topCornerRadius`, and `bottomCornerRadius` simultaneously via separate `KeyframeTrack`s.
-2.  **Phase 1 — Horizontal Expand** (0–0.25s): Width springs from 200pt to 350pt. Height stays at 32pt via `LinearKeyframe`. The notch widens into a "pill" shape.
-3.  **Phase 2 — Vertical Drop** (0.25–0.6s): Width springs to 500pt. Height springs from 32pt to 180pt. The notch drops to full size, revealing the shelf content.
-4.  **Closing**: All tracks spring back to closed values in 0.3s.
-5.  **Spring Timing**: Opening uses `SpringKeyframe` with `response: 0.3–0.35, dampingRatio: 0.7–0.75`. Closing uses `response: 0.3, dampingRatio: 0.8` for a snappier feel.
-6.  **Top-Edge Locking**: The `ZStack(alignment: .top)` combined with `.frame(maxHeight: .infinity, alignment: .top)` ensures the top edge stays pinned. All growth happens downward within the fixed-frame `NSPanel`.
-7.  **Content Visibility**: Shelf content opacity is controlled by a separate `isExpanded` state with a delayed `.easeInOut` animation, so content fades in after the shape morph.
-8.  **Hover Logic**: `.onHover` detects mouse entry/exit. Opening triggers `vm.open()`. Closing uses a 300ms grace period and checks for active drag targeting and sharing sessions.
+1.  **Single Spring Animation**: Uses a single `isOpen` boolean state driven by `vm.notchState`. When the state changes, a `.spring(response: 0.35, dampingFraction: 0.7)` animation grows or shrinks all dimensions simultaneously — width, height, and corner radii.
+2.  **Dimensions**: Closed dimensions come from `NotchDimensions.shared` (hardware notch). Open dimensions come from `vm.openWidth` / `vm.openHeight` (dynamic, ≥ minimum).
+3.  **Corner Radii**: Closed state uses `0` for both top and bottom corners (flat pill). Open state uses `10` (top) and `20` (bottom) for the characteristic notch curve.
+4.  **Shadow**: A `.shadow(color: .black.opacity(0.5), radius: 20, y: 10)` fades in when the notch opens, giving it depth against the desktop.
+5.  **Top-Edge Locking**: The `ZStack(alignment: .top)` combined with the fixed-frame `NSPanel` ensures the top edge stays pinned. All growth happens downward.
+6.  **Content Visibility**: Content is conditionally shown with `if isOpen` and a `.transition(.opacity)` so it fades in as the notch expands.
+7.  **Hover Logic**: `.onHover` calls `vm.handleHover(_:)`. Opening is immediate; closing uses a 300ms grace period checking for active drag targeting and sharing sessions.
 
 ### 3.2 `NotchViewModel.swift`
 **Role:** The central brain managing the notch's expansion state and coordinating drop targeting signals.
@@ -53,8 +52,9 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 2.  **Width Calculation**: The notch width is the gap between the right edge of the left auxiliary area and the left edge of the right auxiliary area (`rightArea.origin.x - leftArea.maxX`).
 3.  **Height Calculation**: Uses `screen.safeAreaInsets.top` for the notch height. Falls back to menu bar height for non-notch screens.
 4.  **Hardware Corner Radii & Usable Area**: Centralizes the `hardwareTopCornerRadius` (6pt) and `hardwareBottomCornerRadius` (14pt) directly from physical screen specs to ensure pixel-perfect rendering. Computes the `usableNotchSize` which represents the central flat width of the notch (without its outward curves).
-5.  **Refresh**: `refresh(for:)` re-reads dimensions from a given `NSScreen`. Called by `AppDelegate.getClosedNotchSize` and available for screen-change events.
-6.  **Consumers**: `NotchView` reads `closedWidth`/`closedHeight`/`hardwareTopCornerRadius`/`hardwareBottomCornerRadius` to match the exact physical bounds of the visual notch morph. `AppDelegate` uses `closedSize` for window positioning and hit-testing.
+5.  **Open Dimensions**: Centralizes the **minimum open size** (`minOpenWidth = 500`, `minOpenHeight = 180`). These serve as the floor — the notch can grow beyond these dimensions to fit more widgets (via `NotchViewModel.desiredOpenWidth`). `minOpenSize` provides a convenience `CGSize`.
+6.  **Refresh**: `refresh(for:)` re-reads dimensions from a given `NSScreen`. Called by `AppDelegate.getClosedNotchSize` and available for screen-change events.
+7.  **Consumers**: `NotchView` reads `closedWidth`/`closedHeight`/`hardwareTopCornerRadius`/`hardwareBottomCornerRadius` for the closed morph. `NotchViewModel` reads `minOpenWidth`/`minOpenHeight` for dynamic open sizing. `AppDelegate` uses `closedSize` for hit-testing and `viewModel.openSize` for window frame positioning.
 
 ---
 
@@ -109,6 +109,16 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 ---
 
 ## Chapter 6: Drop Zone
+
+### 6.0 `WidgetTrayView.swift`
+**Role:** Reusable generic tray wrapper for all drag-and-drop widgets.
+
+**Detailed Flow:**
+1.  **Shared Chrome**: Every widget in the shelf needs a dashed border, a semi-transparent background fill, and an `onDrop` modifier that reports targeting changes to the `NotchViewModel`. `WidgetTrayView` encapsulates all of this in a single generic view.
+2.  **Targeting Feedback**: Manages a local `@State isTargeted` that is passed into its `@ViewBuilder` content closure. When `isTargeted` changes, the border stroke opacity shifts from `0.12` to `0.3` and the background fill from `0.0` to `0.06`. The content closure receives this value so inner views can react (e.g., icon scale, label opacity).
+3.  **Synchronous Binding**: Uses a `Binding` on the `isTargeted` setter to synchronously call `vm.reportTargetingChange(_:)` and `vm.dropEvent = true`, preventing race conditions with debounced targeting logic.
+4.  **Configuration**: Accepts `cornerRadius` (default `12`), `padding` (default `0`), and an `onDropHandler` closure for widget-specific drop logic.
+5.  **Consumers**: `AirDropWidgetView`, `PlaceholderDropZone`, and `DropZoneView` all wrap their content in `WidgetTrayView`.
 
 ### 6.1 `DropZoneView.swift`
 **Role:** The single universal widget inside the expanded notch. Replaces the former multi-widget system (ShelfView, FileBatchWidget, WidgetView, ShelfStackView).

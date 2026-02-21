@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 // MARK: - App Entry Point
 /// Main app struct with MenuBarExtra for menu bar icon.
@@ -69,7 +70,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Window Configuration
     
     /// Size of the notch window when open (fixed)
-    private let openSize = CGSize(width: 500, height: 180)
+    /// Cancellables for Combine subscriptions
+    private var cancellables = Set<AnyCancellable>()
     
     /// Get the closed notch size based on actual screen notch dimensions.
     /// Delegates to NotchDimensions singleton.
@@ -138,7 +140,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // The window stays at this fixed size at all times.
         // SwiftUI handles all visual animation via matchedGeometryEffect internally.
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: openSize.width, height: openSize.height),
+            contentRect: NSRect(x: 0, y: 0, width: viewModel.openSize.width, height: viewModel.openSize.height),
             styleMask: styleMask,
             backing: .buffered,
             defer: false
@@ -173,17 +175,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         viewModel.onStateChange = { _ in
             // No window resize needed; SwiftUI handles it
         }
+        
+        // Resize & reposition window when the desired open width changes
+        viewModel.$desiredOpenWidth
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                guard let self, let window = self.window, let screen = NSScreen.main else { return }
+                let newSize = self.viewModel.openSize
+                window.setContentSize(newSize)
+                self.positionWindow(window, on: screen)
+            }
+            .store(in: &cancellables)
     }
     
     /// Positions the window at the top center of the screen.
     /// Uses the fixed openSize so the window never changes frame.
     private func positionWindow(_ window: NSWindow, on screen: NSScreen) {
         let screenFrame = screen.frame
+        let size = viewModel.openSize
         
         // Use setFrameOrigin like Boring Notch does
         window.setFrameOrigin(NSPoint(
-            x: screenFrame.origin.x + (screenFrame.width / 2) - openSize.width / 2,
-            y: screenFrame.origin.y + screenFrame.height - openSize.height
+            x: screenFrame.origin.x + (screenFrame.width / 2) - size.width / 2,
+            y: screenFrame.origin.y + screenFrame.height - size.height
         ))
     }
     
@@ -203,9 +217,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let screenFrame = screen.frame
         let notchRect = CGRect(
-            x: screenFrame.midX - openSize.width / 2,
+            x: screenFrame.midX - viewModel.openSize.width / 2,
             y: screenFrame.maxY - 50,
-            width: openSize.width,
+            width: viewModel.openSize.width,
             height: 50
         )
         

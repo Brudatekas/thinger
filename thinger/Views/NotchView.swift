@@ -3,73 +3,42 @@
 //  thinger
 //
 //  The main visual notch container with hover-to-expand behavior.
-//  Uses withAnimation(.spring) + a local AnimPhase state for a two-phase morph:
-//    Phase 1: closed pill → wider pill (same height)  — spring
-//    Phase 2: wider pill → full notch                  — spring (after 150ms delay)
-//    Closing: single spring back to closed
+//  A single spring animation grows the notch from its closed pill to full size.
 //  Top edge is locked to screen top via ZStack .top alignment.
 //
 
 import SwiftUI
 import UniformTypeIdentifiers
 
-// MARK: - Animation Phase
-/// Local animation phase that drives the notch's visual dimensions.
-/// Separate from NotchViewModel's state — this controls the visual morph timeline.
-enum AnimPhase {
-    case closed
-    case expanded  // intermediate wider pill (same height)
-    case open      // full notch with content
-}
-
 // MARK: - NotchView
 struct NotchView: View {
     @EnvironmentObject var vm: NotchViewModel
     
-    /// Local animation phase driving the visual morph
-    @State private var animPhase: AnimPhase = .closed
-    
-    /// Task for the delayed phase-2 expansion
-    @State private var expandTask: Task<Void, Never>?
+    /// Whether the notch is visually expanded (drives dimensions + content)
+    @State private var isOpen = false
     
     // MARK: - Dimension Constants
     
     private var currentTopRadius: CGFloat {
-        switch animPhase {
-        case .closed: return 0
-        case .expanded: return 8
-        case .open: return 10
-        }
+        isOpen ? 10 : 0
     }
     
     private var currentBottomRadius: CGFloat {
-        switch animPhase {
-        case .closed: return 0
-        case .expanded: return 12
-        case .open: return 20
-        }
+        isOpen ? 40 : 10
     }
     
     /// Closed dimensions come from the hardware notch via NotchDimensions singleton
     private var closedWidth: CGFloat { NotchDimensions.shared.notchWidth }
     private var closedHeight: CGFloat { NotchDimensions.shared.notchHeight }
-    private var openWidth: CGFloat { 500 }
-    private let openHeight: CGFloat = 180
     
     // MARK: - Computed Dimensions
     
     private var currentWidth: CGFloat {
-        switch animPhase {
-        case .closed: return closedWidth
-        case .expanded, .open: return openWidth
-        }
+        isOpen ? vm.openWidth : closedWidth
     }
     
     private var currentHeight: CGFloat {
-        switch animPhase {
-        case .closed, .expanded: return closedHeight
-        case .open: return openHeight
-        }
+        isOpen ? vm.openHeight : closedHeight
     }
     
     
@@ -79,8 +48,8 @@ struct NotchView: View {
         ZStack() {
             Color.black
             ZStack {
-                // Content fades in only when fully open
-                if animPhase == .open {
+                // Content fades in only when open
+                if isOpen {
                     expandedContent
                         .transition(.opacity)
                 }
@@ -101,37 +70,13 @@ struct NotchView: View {
             
         }
         .frame(width: currentWidth, height: currentHeight, alignment: .top)
+        .shadow(color: .black.opacity(isOpen ? 0.5 : 0), radius: 20, x: 0, y: 10)
         .onChange(of: vm.notchState) { _, newState in
-            if newState == .open {
-                // Phase 1: widen to full width (height stays)
-                withAnimation(.interpolatingSpring(duration: 0.3, bounce: 0.35)) {
-                    animPhase = .expanded
-                }
-                // Phase 2: grow height (width stays) — waits for phase 1 to finish
-                expandTask?.cancel()
-                expandTask = Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(350))
-                    guard !Task.isCancelled else { return }
-                    withAnimation(.interpolatingSpring(duration: 0.35, bounce: 0.4)) {
-                        animPhase = .open
-                    }
-                }
-            } else {
-                // Closing: exact reverse of opening
-                expandTask?.cancel()
-                withAnimation(.interpolatingSpring(duration: 0.3, bounce: 0.3)) {
-                    animPhase = .expanded
-                }
-                expandTask = Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(350))
-                    guard !Task.isCancelled else { return }
-                    withAnimation(.interpolatingSpring(duration: 0.3, bounce: 0.3)) {
-                        animPhase = .closed
-                    }
-                }
+            withAnimation(.spring(response: 0.35, dampingFraction: 1)) {
+                isOpen = newState == .open
             }
-            
         }
+        .containerShape(.rect(cornerRadius: currentBottomRadius))
         .clipShape(NotchShape(
             topCornerRadius: currentTopRadius,
             bottomCornerRadius: currentBottomRadius
@@ -155,7 +100,6 @@ struct NotchView: View {
                 .environmentObject(vm)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-//        .background(Color.red)
         
     }
 }
@@ -220,6 +164,6 @@ struct NotchShape: Shape {
 // MARK: - Preview
 #Preview {
     NotchView()
-        .frame(width: 500, height: 180)
+        .frame(width: NotchDimensions.shared.minOpenWidth, height: NotchDimensions.shared.minOpenHeight)
         .environmentObject(NotchViewModel())
 }

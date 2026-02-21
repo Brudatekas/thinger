@@ -20,6 +20,11 @@ struct WidgetShelf: View {
 
     var body: some View {
         HStack(spacing: 10) {
+            // AirDrop Target Location
+            AirDropWidgetView()
+                .environmentObject(vm)
+                .transition(.scale.combined(with: .opacity))
+                
             // Existing batches
             ForEach(Array(vm.batches.enumerated()), id: \.element.id) { _, batch in
                 DropZoneView(batch: batch)
@@ -35,6 +40,19 @@ struct WidgetShelf: View {
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: vm.batches.count)
         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: showPlaceholder)
+        // Measure the shelf's intrinsic width and push it to the VM
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .preference(key: ShelfWidthPreferenceKey.self, value: geo.size.width)
+            }
+        )
+        .onPreferenceChange(ShelfWidthPreferenceKey.self) { width in
+            // Add horizontal padding (10 per side) + some breathing room
+            let needed = width + 40
+            vm.desiredOpenWidth = max(NotchDimensions.shared.minOpenWidth, needed)
+        }
+
     }
 
     // MARK: - Placeholder
@@ -50,41 +68,31 @@ struct WidgetShelf: View {
 /// A ghost widget that appears when dragging. Dropping files on it creates a real batch.
 struct PlaceholderDropZone: View {
     @EnvironmentObject var vm: NotchViewModel
-    @State private var isTargeted = false
 
     var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: "plus")
-                .font(.system(size: 20, weight: .light))
-                .foregroundStyle(.white.opacity(isTargeted ? 0.7 : 0.3))
-            Text("New")
-                .font(.system(size: 9, weight: .medium, design: .rounded))
-                .foregroundStyle(.white.opacity(isTargeted ? 0.6 : 0.25))
-        }
-        .frame(width: 65, height: 80)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(
-                    .white.opacity(isTargeted ? 0.3 : 0.12),
-                    style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.white.opacity(isTargeted ? 0.06 : 0.0))
-                )
-        )
-        .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: Binding(
-            get: { isTargeted },
-            set: { targeted in
-                isTargeted = targeted
-                vm.reportTargetingChange(targeted)
-            }
-        )) { providers in
-            // Create a new batch and drop into it
+        WidgetTrayView(onDropHandler: { providers in
             let newBatch = vm.addBatch()
-            vm.dropEvent = true
             newBatch.handleDrop(providers: providers)
             return true
+        }) { isTargeted in
+            VStack(spacing: 6) {
+                Image(systemName: "plus")
+                    .font(.system(size: 20, weight: .light))
+                Text("New")
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+            }
+            .frame(width: 65, height: 80)
         }
+    }
+}
+
+// MARK: - ShelfWidthPreferenceKey
+
+/// Preference key used to measure the WidgetShelf's intrinsic content width
+/// and feed it back to the NotchViewModel for dynamic notch sizing.
+private struct ShelfWidthPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }

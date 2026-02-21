@@ -34,41 +34,23 @@ struct DropZoneView: View {
     }
 
     var body: some View {
-        VStack(spacing: 6) {
-            // Controls row
-            controls
-            // Cards area — transitions between ZStack and HStack
-            Group {
-                if isExpanded {
-                    expandedRow
-                } else {
-                    collapsedStack
-                }
-            }
-            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isExpanded)
-        }
-        .padding(5)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(
-                    .white.opacity(batch.isTargeted ? 0.3 : 0.12),
-                    style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.white.opacity(batch.isTargeted ? 0.06 : 0.0))
-                )
-        )
-        .onDrop(of: [.fileURL, .url, .utf8PlainText, .plainText, .data], isTargeted: Binding(
-            get: { batch.isTargeted },
-            set: { targeted in
-                batch.isTargeted = targeted
-                vm.reportTargetingChange(targeted)
-            }
-        )) { providers in
-            vm.dropEvent = true
+        WidgetTrayView(padding: 5, onDropHandler: { providers in
             batch.handleDrop(providers: providers)
             return true
+        }) { isTargeted in
+            VStack(spacing: 6) {
+                // Controls row
+                controls
+                // Cards area — transitions between ZStack and HStack
+                Group {
+                    if isExpanded {
+                        expandedRow
+                    } else {
+                        collapsedStack
+                    }
+                }
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isExpanded)
+            }
         }
     }
 

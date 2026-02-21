@@ -1,3 +1,26 @@
+## 2026-02-21: Simplified Notch Animation & Shadow
+- **Rewritten** `NotchView.swift` — Replaced the two-phase `AnimPhase` system (closed → expanded → open with delayed `Task` steps) with a single `isOpen` boolean and one `.spring(response: 0.35, dampingFraction: 0.7)` animation. Width, height, and corner radii all transition simultaneously. Removed the `AnimPhase` enum and `expandTask` state entirely.
+- **Added** shadow: `.shadow(color: .black.opacity(0.5), radius: 20, y: 10)` fades in when the notch opens.
+- **Updated** `DOCUMENTATION.md` — Rewrote Chapter 3.1 to describe the simplified single-spring animation.
+- Build verified: **BUILD SUCCEEDED**.
+
+## 2026-02-21: Centralized Open Dimensions & Dynamic Notch Sizing
+- **Updated** `NotchDimensions.swift` — Added `minOpenWidth` (500), `minOpenHeight` (180), and `minOpenSize` convenience property. These serve as the minimum open dimensions; the notch can grow beyond them.
+- **Updated** `NotchViewModel.swift` — Added `@Published desiredOpenWidth`, computed `openWidth`, `openHeight`, and `openSize`. The ViewModel is now the single source of truth for the notch's open dimensions.
+- **Updated** `NotchView.swift` — Replaced hardcoded `openWidth: 500` and `openHeight: 180` with `vm.openWidth` and `vm.openHeight`.
+- **Updated** `thingerApp.swift` (AppDelegate) — Replaced hardcoded `openSize = CGSize(width: 500, height: 180)` with `viewModel.openSize`. Added Combine subscription on `$desiredOpenWidth` to resize and reposition the NSPanel when the shelf content grows.
+- **Updated** `WidgetShelf.swift` — Added `ShelfWidthPreferenceKey` and GeometryReader background to measure the HStack's intrinsic width and report it to `vm.desiredOpenWidth`, enabling the notch to auto-expand for more trays.
+- **Updated** `DOCUMENTATION.md` — Updated Chapter 3.3 to describe the new centralized open dimensions.
+- Build verified: **BUILD SUCCEEDED**. Tests verified: **42/42 PASSED**.
+
+## 2026-02-21: Reusable WidgetTrayView Extraction
+- **Created** `WidgetTrayView.swift` — a generic tray wrapper that provides the shared dashed-border, semi-transparent background fill, and `onDrop` targeting logic used by all drag-and-drop widgets. Accepts `cornerRadius`, `padding`, and an `onDropHandler` closure. Passes `isTargeted` into a `@ViewBuilder` content closure so inner views can react to targeting state.
+- **Refactored** `AirDropWidgetView.swift` — removed local `@State isTargeted`, duplicated `.background(RoundedRectangle...)` block, and `.onDrop(...)` modifier. Now wraps content in `WidgetTrayView`.
+- **Refactored** `PlaceholderDropZone` (in `WidgetShelf.swift`) — same treatment: removed local `isTargeted`, duplicated border/background, and `.onDrop(...)`. Now wraps content in `WidgetTrayView`.
+- **Refactored** `DropZoneView.swift` — removed the duplicated border/background block (lines 52–61) and `.onDrop(...)` modifier (lines 62–72). Now wraps body `VStack` in `WidgetTrayView(padding: 5, ...)`.
+- **Updated** `DOCUMENTATION.md` — added section 6.0 documenting `WidgetTrayView` as the shared tray component.
+- Build verified: **BUILD SUCCEEDED**. Tests verified: **42/42 PASSED**.
+
 ## 2026-02-21: Centralize Notch Dimensions
 - **Updated** `NotchDimensions.swift` — Added `hardwareTopCornerRadius` (6) and `hardwareBottomCornerRadius` (14) to centralize physical hardware specs. Added `usableNotchSize` to represent the central flat width of the notch (excluding its outward curves).
 - **Updated** `NotchView.swift` — Replaced hardcoded default corner radii in the view and in `NotchShape` with centralized values from `NotchDimensions.shared`.
