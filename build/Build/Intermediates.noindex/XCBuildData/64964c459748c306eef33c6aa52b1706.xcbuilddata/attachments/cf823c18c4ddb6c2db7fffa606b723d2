@@ -1,0 +1,139 @@
+{
+  "" : {
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thinger-primary.dia",
+    "emit-module-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thinger-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thinger-primary-emit-module.dia",
+    "pch" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thinger-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thinger-primary.swiftdeps"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/ContentView.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/DragDetector.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DragDetector~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/Item.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/Item~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/Models/FileBatch.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileBatch~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/Models/FileCommand.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/FileCommand~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/Models/ShelfItem.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/ShelfItem~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/NotchDimensions.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchDimensions~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/NotchView.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchView~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/NotchViewModel.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/NotchViewModel~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/Views/DropZoneView.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/DropZoneView~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/Views/WidgetShelf.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/WidgetShelf~partial.swiftmodule"
+  },
+  "/Users/tarikkhafaga/macosprojs/thinger/thinger/thingerApp.swift" : {
+    "const-values" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.swiftconstvalues",
+    "dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.d",
+    "diagnostics" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.dia",
+    "index-unit-output-path" : "/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.o",
+    "llvm-bc" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.bc",
+    "object" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.o",
+    "swift-dependencies" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp.swiftdeps",
+    "swiftmodule" : "/Users/tarikkhafaga/macosprojs/thinger/build/Build/Intermediates.noindex/thinger.build/Debug/thinger.build/Objects-normal/arm64/thingerApp~partial.swiftmodule"
+  }
+}

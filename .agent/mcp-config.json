@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "ios-simulator": {
+            "command": "node",
+            "args": [
+                "/Users/tarikkhafaga/macosprojs/istantransit/mcp-ios-simulator/dist/index.js"
+            ],
+            "env": {}
+        }
+    }
+}

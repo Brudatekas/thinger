@@ -2,31 +2,238 @@
 //  thingerApp.swift
 //  thinger
 //
-//  Created by Tarik Khafaga on 30.12.2025.
+//  A macOS notch utility app with widget support and drag-drop AirDrop integration.
+//  Based on Boring Notch patterns.
 //
 
 import SwiftUI
-import SwiftData
 
+// MARK: - App Entry Point
+/// Main app struct with MenuBarExtra for menu bar icon.
 @main
-struct thingerApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
+struct ThingerApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @AppStorage("showMenuBarIcon") var showMenuBarIcon = true
+    
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra("Thinger", systemImage: "tray.and.arrow.down.fill", isInserted: $showMenuBarIcon) {
+            Button("Toggle Notch") {
+                appDelegate.toggleNotch()
+            }
+            .keyboardShortcut("t")
+            
+            Button(appDelegate.viewModel.isLocked
+                   ? "Unlock Notch"
+                   : (appDelegate.viewModel.notchState == .open ? "Lock Open" : "Lock Closed")) {
+                appDelegate.viewModel.toggleLock()
+            }
+            .keyboardShortcut("l", modifiers: .command)
+            
+            Divider()
+            
+            Button("Settings...") {
+                appDelegate.openSettings()
+            }
+            .keyboardShortcut(",", modifiers: .command)
+            
+            Button("Clear All Widgets") {
+                appDelegate.viewModel.clearAllBatches()
+            }
+            
+            Divider()
+            
+            Button("Quit Thinger") {
+                NSApplication.shared.terminate(nil)
+            }
+            .keyboardShortcut("q", modifiers: .command)
         }
-        .modelContainer(sharedModelContainer)
+    
+    }
+}
+
+// MARK: - App Delegate
+/// Manages the floating notch window and global drag detection.
+class AppDelegate: NSObject, NSApplicationDelegate {
+    
+    // MARK: - Properties
+    
+    /// The main notch window
+    var window: NSPanel?
+    
+    /// View model for notch state
+    var viewModel = NotchViewModel()
+    
+    /// Global drag detector for file drops
+    var dragDetector: DragDetector?
+    
+    // MARK: - Window Configuration
+    
+    /// Size of the notch window when open (fixed)
+    private let openSize = CGSize(width: 500, height: 180)
+    
+    /// Get the closed notch size based on actual screen notch dimensions.
+    /// Delegates to NotchDimensions singleton.
+    private func getClosedNotchSize(for screen: NSScreen) -> CGSize {
+        NotchDimensions.shared.refresh(for: screen)
+        return NotchDimensions.shared.closedSize
+    }
+    
+    // MARK: - Lifecycle
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Set app to accessory (no dock icon)
+        NSApp.setActivationPolicy(.accessory)
+        
+        // Create and configure the notch window
+        setupNotchWindow()
+        
+        // Setup global drag detection
+        setupDragDetector()
+        
+        // Listen for screen changes
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(screenConfigurationDidChange),
+            name: NSApplication.didChangeScreenParametersNotification,
+            object: nil
+        )
+    }
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        dragDetector?.stopMonitoring()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Public Actions (called from MenuBarExtra)
+    
+    func toggleNotch() {
+        Task { @MainActor in
+            viewModel.toggle()
+        }
+    }
+    
+    func openSettings() {
+        let alert = NSAlert()
+        alert.messageText = "Settings"
+        alert.informativeText = "Settings will be available in a future update."
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+    
+    // MARK: - Window Setup
+    
+    /// Creates and configures the floating notch panel.
+    private func setupNotchWindow() {
+        guard let screen = NSScreen.main else { return }
+        
+        let contentView = NotchView()
+            .environmentObject(viewModel)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        
+        // Create panel with Boring Notch's exact style mask
+        let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow]
+        
+        // Use the maximum (open) size for the window frame.
+        // The window stays at this fixed size at all times.
+        // SwiftUI handles all visual animation via matchedGeometryEffect internally.
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: openSize.width, height: openSize.height),
+            styleMask: styleMask,
+            backing: .buffered,
+            defer: false
+        )
+        
+        // Configure panel appearance - matching BoringNotchSkyLightWindow
+        panel.isFloatingPanel = true
+        panel.isOpaque = false
+        panel.titleVisibility = .hidden
+        panel.titlebarAppearsTransparent = true
+        panel.backgroundColor = .clear
+        panel.isMovable = false
+        panel.level = .mainMenu + 3  // Above menu bar to overlay notch
+        panel.hasShadow = false
+        panel.isReleasedWhenClosed = false
+        panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
+        panel.hidesOnDeactivate = false
+        panel.isMovableByWindowBackground = false
+        
+        // Set SwiftUI content
+        panel.contentView = NSHostingView(rootView: contentView)
+        
+        // Position at top center using setFrameOrigin (like Boring Notch)
+        positionWindow(panel, on: screen)
+        
+        panel.orderFrontRegardless()
+        self.window = panel
+        
+        // State change callback — window no longer resizes;
+        // all visual animation is handled by SwiftUI's matchedGeometryEffect.
+        // We keep the callback for any future non-visual side effects.
+        viewModel.onStateChange = { _ in
+            // No window resize needed; SwiftUI handles it
+        }
+    }
+    
+    /// Positions the window at the top center of the screen.
+    /// Uses the fixed openSize so the window never changes frame.
+    private func positionWindow(_ window: NSWindow, on screen: NSScreen) {
+        let screenFrame = screen.frame
+        
+        // Use setFrameOrigin like Boring Notch does
+        window.setFrameOrigin(NSPoint(
+            x: screenFrame.origin.x + (screenFrame.width / 2) - openSize.width / 2,
+            y: screenFrame.origin.y + screenFrame.height - openSize.height
+        ))
+    }
+    
+    /// Handles notch state changes.
+    /// With the fixed-frame approach, the window no longer resizes.
+    /// SwiftUI's matchedGeometryEffect handles all visual transitions.
+    private func handleNotchStateChange(_ state: NotchState) {
+        // No-op: window stays at fixed max size.
+        // SwiftUI handles visual animation internally.
+    }
+    
+    // MARK: - Drag Detection
+    
+    /// Sets up the global drag detector for detecting file drags near the notch.
+    private func setupDragDetector() {
+        guard let screen = NSScreen.main else { return }
+        
+        let screenFrame = screen.frame
+        let notchRect = CGRect(
+            x: screenFrame.midX - openSize.width / 2,
+            y: screenFrame.maxY - 50,
+            width: openSize.width,
+            height: 50
+        )
+        
+        dragDetector = DragDetector(notchRegion: notchRect)
+        
+        dragDetector?.onDragEntersNotchRegion = { [weak self] in
+            Task { @MainActor in
+                self?.viewModel.updateGlobalDragTargeting(true)
+                self?.viewModel.open()
+            }
+        }
+        
+        dragDetector?.onDragExitsNotchRegion = { [weak self] in
+            Task { @MainActor in
+                self?.viewModel.updateGlobalDragTargeting(false)
+            }
+        }
+        
+        dragDetector?.startMonitoring()
+    }
+    
+    // MARK: - Screen Changes
+    
+    @objc private func screenConfigurationDidChange(_ notification: Notification) {
+        guard let window = window, let screen = NSScreen.main else { return }
+        positionWindow(window, on: screen)
+        
+        // Reconfigure drag detector for new screen layout
+        setupDragDetector()
     }
 }

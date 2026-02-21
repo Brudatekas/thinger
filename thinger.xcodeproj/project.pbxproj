@@ -6,20 +6,56 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		3BF7CFD12F48E24900629F36 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3BBA18A12F03FF4600C8E976 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3BBA18A82F03FF4600C8E976;
+			remoteInfo = thinger;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		3BBA18A92F03FF4600C8E976 /* thinger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = thinger.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3BF7CFCD2F48E24800629F36 /* thingerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = thingerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3B5731682F04011C001B5015 /* Exceptions for "thinger" folder in "thinger" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3BBA18A82F03FF4600C8E976 /* thinger */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3BBA18AB2F03FF4600C8E976 /* thinger */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3B5731682F04011C001B5015 /* Exceptions for "thinger" folder in "thinger" target */,
+			);
 			path = thinger;
+			sourceTree = "<group>";
+		};
+		3BF7CFCE2F48E24800629F36 /* thingerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = thingerTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3BBA18A62F03FF4600C8E976 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3BF7CFCA2F48E24800629F36 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				3BBA18AB2F03FF4600C8E976 /* thinger */,
+				3BF7CFCE2F48E24800629F36 /* thingerTests */,
 				3BBA18AA2F03FF4600C8E976 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				3BBA18A92F03FF4600C8E976 /* thinger.app */,
+				3BF7CFCD2F48E24800629F36 /* thingerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +108,29 @@
 			productReference = 3BBA18A92F03FF4600C8E976 /* thinger.app */;
 			productType = "com.apple.product-type.application";
 		};
+		3BF7CFCC2F48E24800629F36 /* thingerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3BF7CFD52F48E24900629F36 /* Build configuration list for PBXNativeTarget "thingerTests" */;
+			buildPhases = (
+				3BF7CFC92F48E24800629F36 /* Sources */,
+				3BF7CFCA2F48E24800629F36 /* Frameworks */,
+				3BF7CFCB2F48E24800629F36 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3BF7CFD22F48E24900629F36 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3BF7CFCE2F48E24800629F36 /* thingerTests */,
+			);
+			name = thingerTests;
+			packageProductDependencies = (
+			);
+			productName = thingerTests;
+			productReference = 3BF7CFCD2F48E24800629F36 /* thingerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -77,11 +138,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2610;
+				LastSwiftUpdateCheck = 2620;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					3BBA18A82F03FF4600C8E976 = {
 						CreatedOnToolsVersion = 26.1.1;
+					};
+					3BF7CFCC2F48E24800629F36 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = 3BBA18A82F03FF4600C8E976;
 					};
 				};
 			};
@@ -100,12 +165,20 @@
 			projectRoot = "";
 			targets = (
 				3BBA18A82F03FF4600C8E976 /* thinger */,
+				3BF7CFCC2F48E24800629F36 /* thingerTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3BBA18A72F03FF4600C8E976 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3BF7CFCB2F48E24800629F36 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +195,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		3BF7CFC92F48E24800629F36 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3BF7CFD22F48E24900629F36 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3BBA18A82F03FF4600C8E976 /* thinger */;
+			targetProxy = 3BF7CFD12F48E24900629F36 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3BBA18B42F03FF4700C8E976 /* Debug */ = {
@@ -255,6 +343,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = thinger/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -285,6 +375,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = thinger/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -300,6 +392,46 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3BF7CFD32F48E24900629F36 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tarikkhafaga.thingerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/thinger.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/thinger";
+			};
+			name = Debug;
+		};
+		3BF7CFD42F48E24900629F36 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tarikkhafaga.thingerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/thinger.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/thinger";
 			};
 			name = Release;
 		};
@@ -320,6 +452,15 @@
 			buildConfigurations = (
 				3BBA18B72F03FF4700C8E976 /* Debug */,
 				3BBA18B82F03FF4700C8E976 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3BF7CFD52F48E24900629F36 /* Build configuration list for PBXNativeTarget "thingerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3BF7CFD32F48E24900629F36 /* Debug */,
+				3BF7CFD42F48E24900629F36 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
