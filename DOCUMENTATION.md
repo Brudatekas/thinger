@@ -399,3 +399,82 @@ Focuses on the data model representations:
 - **Display Name**: Tests that URLs are stripped of `https://`, file URLs show their last path component, and long text strings are properly truncated with `...`.
 - **Identity Key**: Ensures URLs are properly normalized (lowercased, resolving symlinks) so that the same file added via different paths yields the same identity key.
 - **Icon Symbol**: Verifies `iconSymbolName` returns the correct SF Symbol for text (`text.alignleft`) and links (`link`).
+
+---
+
+## Chapter 11: DocC Documentation Catalog
+
+The project includes a DocC documentation catalog at `thinger/thinger.docc/` for generating rich, browsable API documentation via Xcode's Build Documentation action (`Product → Build Documentation`).
+
+### 11.1 Catalog Structure
+
+| File | Purpose |
+|------|---------|
+| `thinger.md` | Root landing page — architecture overview diagram, key design decisions, links to all documented types |
+| `Views.md` | Topic page for the Views directory — view hierarchy tree, data flow table, organized topic groups |
+
+### 11.2 Inline Documentation
+
+Every source file in `Views/` has been annotated with comprehensive `///` DocC comments:
+
+- **`NotchView.swift`** — Documents the animation strategy (single spring), top-edge locking, interaction model (hover + drag targeting + shadow), expanded content layout, and cross-references to `NotchShape`, `WidgetShelf`, and `NotchViewModel`.
+- **`NotchShape.swift`** (in `NotchView.swift`) — Documents the quadratic Bézier geometry with ASCII art, animatable data conformance, and step-by-step path construction.
+- **`DropZoneView.swift`** — Documents collapsed/expanded visual modes (with table), drop acceptance, file command pipeline, drag-out semantics (batch vs. individual), and matched geometry transitions.
+- **`FileURLTransferable`** (in `DropZoneView.swift`) — Documents the `Transferable` bridge and the fallback URL strategy.
+- **`ItemCard`** (in `DropZoneView.swift`) — Documents the compact vs. full-size property table and the glass-gradient visual treatment.
+- **`WidgetShelf.swift`** — Documents dynamic notch sizing via `ShelfWidthPreferenceKey`, the placeholder lifecycle, and spring-animated transitions.
+- **`PlaceholderDropZone`** (in `WidgetShelf.swift`) — Documents the factory-creation pattern when files are dropped.
+- **`ShelfWidthPreferenceKey`** (in `WidgetShelf.swift`) — Documents the max-reduce strategy and the preference flow diagram.
+- **`WidgetTrayView.swift`** — Documents the synchronous binding strategy for targeting, the dashed-border visual, supported UTTypes, and lists all consumer views.
+- **`AirDropWidgetView.swift`** — Documents the drop handling pipeline, the disabled tap-to-pick flow, and the connection to `NSSharingService`.
+
+### 11.3 Building Documentation
+
+To generate and view the DocC documentation:
+1. Open the project in Xcode.
+2. Select **Product → Build Documentation** (⌃⇧⌘D).
+3. The documentation appears in the Developer Documentation window.
+
+---
+
+## Chapter 12: NotchConfiguration & Control Panel
+
+### 12.1 NotchConfiguration Singleton
+
+`NotchConfiguration` (`Models/NotchConfiguration.swift`) is an `@MainActor ObservableObject` singleton centralizing every tweakable parameter:
+
+| Category | Properties | Default Values |
+|----------|-----------|----------------|
+| Notch Animation | `notchSpringResponse`, `notchSpringDamping` | 0.35, 1.0 |
+| Widget Animation | `widgetSpringResponse`, `widgetSpringDamping` | 0.35, 0.8 |
+| Corner Radii (Open) | `openTopCornerRadius`, `openBottomCornerRadius` | 10, 40 |
+| Corner Radii (Closed) | `closedTopCornerRadius`, `closedBottomCornerRadius` | 0, 10 |
+| Dimensions | `minOpenWidth`, `minOpenHeight` | 500, 180 |
+| Timing | `hoverCloseDelay`, `dragDebounceDelay` | 300 ms, 50 ms |
+| Shadow | `shadowRadius`, `shadowOffsetY` | 20, 10 |
+
+All values persist via `UserDefaults` (`didSet` pattern). Computed helpers `notchSpring` and `widgetSpring` build `Animation.spring(response:dampingFraction:)` from the published values. A `Defaults` enum stores factory values, and `resetToDefaults()` restores them.
+
+### 12.2 ControlPanelView
+
+`ControlPanelView` (`Views/ControlPanelView.swift`) opens from either the gear icon inside the expanded notch or the menu bar **Settings…** item. It uses `Window(id: "control-panel")` as its scene and temporarily switches the app to `.regular` activation policy so it can receive focus.
+
+The view is organized into 7 `SectionCard` groups with `SliderRow` components:
+1. **Notch Controls** — Open/Close/Toggle buttons, lock toggle, clear-all.
+2. **Notch Animation** — Spring response and damping sliders.
+3. **Dimensions** — Min open width/height sliders.
+4. **Corner Radii** — Open and closed state radius sliders.
+5. **Timing** — Hover close delay and drag debounce sliders.
+6. **Shadow** — Blur radius and Y offset sliders.
+7. **Widget Animation** — Widget spring response and damping sliders.
+
+A "Reset All to Defaults" button at the bottom calls `NotchConfiguration.shared.resetToDefaults()`.
+
+### 12.3 Call-Site Integration
+
+All hardcoded values across the codebase were replaced with `NotchConfiguration.shared` reads:
+- `NotchView.swift` — corner radii, spring animation, shadow parameters.
+- `NotchViewModel.swift` — hover delay, drag debounce, open dimensions.
+- `DropZoneView.swift` — all 7 spring animations.
+- `WidgetShelf.swift` — 2 spring animations + `minOpenWidth` reference.
+- `thingerApp.swift` — `Window` scene for the control panel, `openWindow(id:)` in menu bar.

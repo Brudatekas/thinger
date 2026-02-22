@@ -1,3 +1,30 @@
+## 2026-02-23: Simplified Notch Width & Settings Access
+- **Removed** dynamic width measurement from `WidgetShelf.swift` — deleted `GeometryReader`, `ShelfWidthPreferenceKey`, and `onPreferenceChange`. Width is now purely set by `NotchConfiguration.shared.minOpenWidth`.
+- **Removed** `desiredOpenWidth` from `NotchViewModel.swift` — `openWidth` now reads directly from `NotchConfiguration`.
+- **Removed** `desiredOpenWidth` Combine sink from `AppDelegate.setupNotchWindow()`.
+- **Removed** "Settings…" button from MenuBarExtra — control panel now only opens from the gear icon in the notch.
+- **Removed** dead `openSettings()` method from `AppDelegate` and unused `@Environment(\.openWindow)` from `ThingerApp`.
+
+## 2026-02-23: Centralized NotchConfiguration & Control Panel Window
+- **Created** `Models/NotchConfiguration.swift` — `@MainActor ObservableObject` singleton with 14 `@Published` properties (animation spring, corner radii, dimensions, timing, shadow). All persisted via `UserDefaults` with `didSet`. Includes `Defaults` enum and `resetToDefaults()`.
+- **Created** `Views/ControlPanelView.swift` — 7-section control panel (Notch Controls, Notch Animation, Dimensions, Corner Radii, Timing, Shadow, Widget Animation) with reusable `SectionCard` and `SliderRow` components. Includes open/close/toggle/lock buttons and "Reset All to Defaults".
+- **Modified** `thingerApp.swift` — Added `Window("Control Panel", id: "control-panel")` scene. Menu bar "Settings…" now calls `openWindow(id:)`. Activation policy toggles between `.regular` (panel open) and `.accessory` (panel closed).
+- **Modified** `NotchView.swift` — Corner radii, spring animation, and shadow values now read from `NotchConfiguration.shared`. Gear icon wired as button opening control panel via `openWindow(id:)`.
+- **Modified** `NotchViewModel.swift` — Hover delay (300ms), drag debounce (50ms), and open dimensions now read from `NotchConfiguration.shared`.
+- **Modified** `DropZoneView.swift` — All 7 hardcoded `.spring()` calls replaced with `NotchConfiguration.shared.widgetSpring*` values.
+- **Modified** `WidgetShelf.swift` — 2 spring animations + `minOpenWidth` reference replaced with `NotchConfiguration.shared` reads.
+- **Updated** `DOCUMENTATION.md` — Added Chapter 12 documenting `NotchConfiguration` singleton, `ControlPanelView`, and call-site integration.
+
+## 2026-02-23: Rich DocC Documentation for Views
+- **Created** `thinger.docc/thinger.md` — DocC catalog root article with architecture overview, key design decisions, and topic groups linking to all documented view types.
+- **Created** `thinger.docc/Views.md` — dedicated topic page with the full view hierarchy tree, data flow table (NotchViewModel vs BatchViewModel), and organized topic groups (Root Container, Widget Shelf, File Drop Zone, AirDrop, Shared Chrome).
+- **Documented** `NotchView.swift` — added comprehensive `///` DocC comments to `NotchView` (animation strategy, top-edge locking, interaction model, expanded content), `NotchShape` (Bézier geometry with ASCII art, animatable conformance, step-by-step path), and all properties/computed values.
+- **Documented** `DropZoneView.swift` — added DocC comments to `DropZoneView` (collapsed/expanded modes table, drop acceptance, file commands pipeline, drag-out, matched geometry), `FileURLTransferable` (Transferable bridge, fallback URL), `ItemCard` (compact vs full-size property table, glass-gradient treatment), and all methods.
+- **Documented** `WidgetShelf.swift` — added DocC comments to `WidgetShelf` (dynamic sizing via ShelfWidthPreferenceKey, placeholder lifecycle), `PlaceholderDropZone` (factory pattern), and `ShelfWidthPreferenceKey` (max-reduce strategy, preference flow diagram).
+- **Documented** `WidgetTrayView.swift` — added DocC comments explaining synchronous binding strategy, dashed-border visual, supported UTTypes, content closure, and consumer list.
+- **Documented** `AirDropWidgetView.swift` — added DocC comments covering drop handling pipeline, disabled tap-to-pick flow, and NSSharingService connection.
+- **Updated** `DOCUMENTATION.md` — added Chapter 11 describing the DocC catalog structure, inline documentation coverage, and build instructions.
+
 ## 2026-02-21: Simplified Notch Animation & Shadow
 - **Rewritten** `NotchView.swift` — Replaced the two-phase `AnimPhase` system (closed → expanded → open with delayed `Task` steps) with a single `isOpen` boolean and one `.spring(response: 0.35, dampingFraction: 0.7)` animation. Width, height, and corner radii all transition simultaneously. Removed the `AnimPhase` enum and `expandTask` state entirely.
 - **Added** shadow: `.shadow(color: .black.opacity(0.5), radius: 20, y: 10)` fades in when the notch opens.

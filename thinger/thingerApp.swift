@@ -17,6 +17,18 @@ struct ThingerApp: App {
     @AppStorage("showMenuBarIcon") var showMenuBarIcon = true
     
     var body: some Scene {
+        // Control Panel Window
+        Window("Control Panel", id: "control-panel") {
+            ControlPanelView()
+                .environmentObject(appDelegate.viewModel)
+                .onDisappear {
+                    // Revert to accessory mode when control panel closes
+                    NSApp.setActivationPolicy(.accessory)
+                }
+        }
+        .defaultSize(width: 420, height: 700)
+        .windowResizability(.contentSize)
+
         MenuBarExtra("Thinger", systemImage: "tray.and.arrow.down.fill", isInserted: $showMenuBarIcon) {
             Button("Toggle Notch") {
                 appDelegate.toggleNotch()
@@ -31,11 +43,6 @@ struct ThingerApp: App {
             .keyboardShortcut("l", modifiers: .command)
             
             Divider()
-            
-            Button("Settings...") {
-                appDelegate.openSettings()
-            }
-            .keyboardShortcut(",", modifiers: .command)
             
             Button("Clear All Widgets") {
                 appDelegate.viewModel.clearAllBatches()
@@ -114,15 +121,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    func openSettings() {
-        let alert = NSAlert()
-        alert.messageText = "Settings"
-        alert.informativeText = "Settings will be available in a future update."
-        alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
-    }
-    
     // MARK: - Window Setup
     
     /// Creates and configures the floating notch panel.
@@ -175,11 +173,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         viewModel.onStateChange = { _ in
             // No window resize needed; SwiftUI handles it
         }
-        
-        // Resize & reposition window when the desired open width changes
-        viewModel.$desiredOpenWidth
-            .removeDuplicates()
-            .sink { [weak self] _ in
+
+        // Resize & reposition window when config dimensions change
+        let config = NotchConfiguration.shared
+        config.$minOpenWidth
+            .combineLatest(config.$minOpenHeight)
+            .removeDuplicates(by: { $0 == $1 })
+            .sink { [weak self] _, _ in
                 guard let self, let window = self.window, let screen = NSScreen.main else { return }
                 let newSize = self.viewModel.openSize
                 window.setContentSize(newSize)

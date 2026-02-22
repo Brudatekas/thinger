@@ -23,20 +23,16 @@ enum NotchState: Equatable {
 @MainActor
 class NotchViewModel: ObservableObject {
 
-    // MARK: - Dynamic Open Dimensions
+    // MARK: - Open Dimensions
 
-    /// The desired open width, updated by WidgetShelf when content is measured.
-    /// Always clamped to at least `NotchDimensions.shared.minOpenWidth`.
-    @Published var desiredOpenWidth: CGFloat = NotchDimensions.shared.minOpenWidth
-
-    /// The actual open width used for layout, guaranteed ≥ minimum.
+    /// The open width, read directly from ``NotchConfiguration/minOpenWidth``.
     var openWidth: CGFloat {
-        max(NotchDimensions.shared.minOpenWidth, desiredOpenWidth)
+        CGFloat(NotchConfiguration.shared.minOpenWidth)
     }
 
-    /// The open height (currently fixed at minOpenHeight).
+    /// The open height (currently fixed at configured minOpenHeight).
     var openHeight: CGFloat {
-        NotchDimensions.shared.minOpenHeight
+        CGFloat(NotchConfiguration.shared.minOpenHeight)
     }
 
     /// Convenience: the current open size.
@@ -103,7 +99,7 @@ class NotchViewModel: ObservableObject {
             globalDragTargeting = true
         } else {
             dragDebounceTask = Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(50))
+                try? await Task.sleep(for: .milliseconds(NotchConfiguration.shared.dragDebounceDelay))
                 guard !Task.isCancelled else { return }
                 self?.globalDragTargeting = false
             }
@@ -186,7 +182,7 @@ class NotchViewModel: ObservableObject {
         } else if notchState != .closed && !anyDropZoneTargeting && !preventNotchClose {
             hoverTask?.cancel()
             hoverTask = Task { @MainActor [weak self] in
-                try? await Task.sleep(for: .milliseconds(300))
+                try? await Task.sleep(for: .milliseconds(NotchConfiguration.shared.hoverCloseDelay))
                 guard !Task.isCancelled else { return }
                 guard let self else { return }
                 if !self.isHovering && !self.anyDropZoneTargeting {

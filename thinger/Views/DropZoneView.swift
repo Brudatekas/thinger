@@ -4,7 +4,7 @@
 //
 //  A single universal drop zone that accepts any file type, URL, or text.
 //  Shows items as thumbnail cards. Supports collapsed (stacked ZStack) and
-//  expanded (side-by-side HStack) modes with matchedGeometryEffect transitions.
+//  expanded (side-by-side HStack) modes
 //
 
 import SwiftUI
@@ -12,18 +12,89 @@ import UniformTypeIdentifiers
 
 // MARK: - DropZoneView
 
+/// A universal drag-and-drop widget that displays a batch of shelf items as visual cards.
+///
+/// ## Overview
+///
+/// `DropZoneView` is the primary widget rendered inside ``WidgetShelf``. Each instance
+/// manages one ``BatchViewModel`` and transitions between two visual modes:
+///
+/// | Mode | Trigger | Layout |
+/// |------|---------|--------|
+/// | **Collapsed** | Default, or tap "minimize" | `ZStack` of ≤ 3 cards with random rotation/offset |
+/// | **Expanded** | Tap the collapsed stack | Horizontal `ScrollView` with individually draggable cards |
+///
+/// ### Drop Acceptance
+///
+/// The entire view is wrapped in a ``WidgetTrayView`` that accepts `.fileURL`, `.url`,
+/// `.utf8PlainText`, `.plainText`, and `.data` UTTypes. Dropped providers are forwarded
+/// to ``BatchViewModel/handleDrop(providers:)`` for async extraction.
+///
+/// ### File Commands
+///
+/// When the batch contains files, a gear menu (⚙) appears in the controls row listing
+/// ``FileCommand`` instances that match the current file extensions. Running a command:
+/// 1. Extracts all file URLs from the batch.
+/// 2. Calls ``FileCommand/processAll(fileURLs:)`` asynchronously.
+/// 3. Creates a **new** "Output" batch (via ``NotchViewModel/addBatch()``) with the results.
+///
+/// ### Drag Out
+///
+/// - **Collapsed**: Dragging the stacked preview produces a ``FileURLTransferable`` containing
+///   **all** item URLs, letting the user drag the entire batch into Finder or another app.
+/// - **Expanded**: Each card is individually draggable. Text items are written to temporary
+///   `.txt` files so they can be dragged as file URLs.
+///
+/// ### Matched Geometry
+///
+/// A `@Namespace` (`cardNamespace`) is shared between collapsed and expanded layouts.
+/// Each ``ItemCard`` is tagged with `.matchedGeometryEffect(id: item.id, in: cardNamespace)`
+/// so SwiftUI animates cards from their stacked position to side-by-side and back.
+///
+/// ## Topics
+///
+/// ### Visual Modes
+/// - ``collapsedStack``
+/// - ``expandedRow``
+///
+/// ### Commands
+/// - ``availableCommands``
+/// - ``runCommand(_:)``
+///
+/// ### Drag Support
+/// - ``FileURLTransferable``
+/// - ``ItemCard``
 struct DropZoneView: View {
+
+    /// The notch view model, used to create new output batches and remove this widget.
     @EnvironmentObject var vm: NotchViewModel
+
+    /// The batch view model that owns the items displayed in this drop zone.
     @ObservedObject var batch: BatchViewModel
+
+    /// Whether the cards are shown side-by-side (`true`) or stacked (`false`).
     @State private var isExpanded = false
+
+    /// Guards the command menu while a ``FileCommand`` is executing.
     @State private var isRunningCommand = false
+
+    /// Namespace for `matchedGeometryEffect` card transitions between collapsed and expanded layouts.
     @Namespace private var cardNamespace
 
+    /// Creates a drop zone for the given batch.
+    ///
+    /// - Parameter batch: The ``BatchViewModel`` whose items this view will display.
     init(batch: BatchViewModel) {
         self.batch = batch
     }
 
-    /// Commands available for the current set of files
+    /// Returns the subset of ``FileCommand/allCommands`` that are applicable to the current batch.
+    ///
+    /// Applicability is determined by comparing each command's `acceptedExtensions` against the
+    /// set of lowercased file extensions present in the batch. Commands with an empty
+    /// `acceptedExtensions` set match any file.
+    ///
+    /// - Returns: An empty array if the batch contains no file items.
     private var availableCommands: [FileCommand] {
         let extensions = Set(batch.items.compactMap { $0.fileURL?.pathExtension.lowercased() })
         if extensions.isEmpty { return [] }
@@ -49,7 +120,7 @@ struct DropZoneView: View {
                         collapsedStack
                     }
                 }
-                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isExpanded)
+                .animation(.spring(response: NotchConfiguration.shared.widgetSpringResponse, dampingFraction: NotchConfiguration.shared.widgetSpringDamping), value: isExpanded)
             }
         }
     }
@@ -58,6 +129,11 @@ struct DropZoneView: View {
 
     // MARK: - Collapsed (ZStack — overlapping cards)
 
+    /// A fan-style preview of up to three ``ItemCard`` instances stacked with slight rotation and offset.
+    ///
+    /// Tapping the stack sets `isExpanded = true`, transitioning to ``expandedRow`` via
+    /// matched geometry. Dragging the stack produces a ``FileURLTransferable`` containing
+    /// all batch item URLs.
     private var collapsedStack: some View {
         ZStack {
             ForEach(Array(batch.items.prefix(3).enumerated()), id: \.element.id) { index, item in
@@ -72,7 +148,7 @@ struct DropZoneView: View {
             dragPreview(for: batch.items)
         }
         .onTapGesture {
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: NotchConfiguration.shared.widgetSpringResponse, dampingFraction: NotchConfiguration.shared.widgetSpringDamping)) {
                 isExpanded = true
             }
         }
@@ -80,6 +156,10 @@ struct DropZoneView: View {
 
     // MARK: - Expanded (HStack — side by side)
 
+    /// A horizontal scroll of all batch items, each rendered as an individually draggable ``ItemCard``.
+    ///
+    /// Right-clicking a card reveals a context menu with "Remove Item" and "Minimize Batch".
+    /// The scroll is capped at 200 pt width to keep the widget compact within the shelf.
     private var expandedRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
@@ -92,7 +172,7 @@ struct DropZoneView: View {
                         .contextMenu {
                             Button("Remove Item") { batch.remove(item) }
                             Button("Minimize Batch") {
-                                withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                                withAnimation(.spring(response: NotchConfiguration.shared.widgetSpringResponse, dampingFraction: NotchConfiguration.shared.widgetSpringDamping)) {
                                     isExpanded = false
                                 }
                             }
@@ -106,6 +186,12 @@ struct DropZoneView: View {
 
     // MARK: - Controls
 
+    /// The toolbar row above the cards showing item count, command menu, expand/collapse toggle,
+    /// and a clear button.
+    ///
+    /// - Output widgets (whose titles begin with "Output") display a prominent uppercase label.
+    /// - The command menu only appears when ``availableCommands`` is non-empty.
+    /// - The clear button removes all items and destroys the widget via ``NotchViewModel/removeBatch(_:)``.
     private var controls: some View {
         HStack(spacing: 8) {
             // Title — prominent for output widgets
@@ -150,7 +236,7 @@ struct DropZoneView: View {
 
             if (isExpanded == true){
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    withAnimation(.spring(response: NotchConfiguration.shared.widgetSpringResponse, dampingFraction: NotchConfiguration.shared.widgetSpringDamping)) {
                         isExpanded = false
                     }
                 } label: {
@@ -159,7 +245,7 @@ struct DropZoneView: View {
                 .buttonStyle(.plain)
             } else {
                 Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                    withAnimation(.spring(response: NotchConfiguration.shared.widgetSpringResponse, dampingFraction: NotchConfiguration.shared.widgetSpringDamping)) {
                         isExpanded = true
                     }
                 } label: {
@@ -169,7 +255,7 @@ struct DropZoneView: View {
             }
 
             Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                withAnimation(.spring(response: NotchConfiguration.shared.widgetSpringResponse, dampingFraction: NotchConfiguration.shared.widgetSpringDamping)) {
                     batch.clear()
                     vm.removeBatch(batch)
                 }
@@ -184,6 +270,15 @@ struct DropZoneView: View {
 
     // MARK: - Run Command
 
+    /// Executes a ``FileCommand`` against all file items in the batch.
+    ///
+    /// The method:
+    /// 1. Extracts file URLs from the batch (skipping text/link items).
+    /// 2. Sets ``isRunningCommand`` to show a progress spinner in the controls.
+    /// 3. Calls ``FileCommand/processAll(fileURLs:)`` on a background task.
+    /// 4. Collects successful output URLs and creates a new "Output" batch widget.
+    ///
+    /// - Parameter command: The ``FileCommand`` to run (e.g., PDF → PowerPoint).
     private func runCommand(_ command: FileCommand) {
         let fileURLs = batch.items.compactMap { $0.fileURL }
         guard !fileURLs.isEmpty else { return }
@@ -211,10 +306,20 @@ struct DropZoneView: View {
 
     // MARK: - Transferable Helpers
 
+    /// Wraps all item URLs from the batch into a single ``FileURLTransferable``.
+    ///
+    /// Items without a URL (e.g., plain text) are skipped.
     private func transferable(for items: [ShelfItem]) -> FileURLTransferable {
         FileURLTransferable(urls: items.compactMap { $0.itemURL })
     }
 
+    /// Wraps a single item's URL into a ``FileURLTransferable``.
+    ///
+    /// For text items, a temporary `.txt` file is written to `$TMPDIR` so they can
+    /// participate in file-based drag-and-drop.
+    ///
+    /// - Parameter item: The ``ShelfItem`` to convert.
+    /// - Returns: A transferable containing exactly one URL (or an empty array as fallback).
     private func singleTransferable(for item: ShelfItem) -> FileURLTransferable {
         if let url = item.itemURL {
             return FileURLTransferable(urls: [url])
@@ -230,6 +335,9 @@ struct DropZoneView: View {
 
     // MARK: - Drag Previews
 
+    /// A composite drag preview showing up to three overlapping item previews.
+    ///
+    /// Used when dragging the entire collapsed batch out of the notch.
     private func dragPreview(for items: [ShelfItem]) -> some View {
         HStack(spacing: -10) {
             ForEach(items.prefix(3)) { item in
@@ -238,6 +346,7 @@ struct DropZoneView: View {
         }
     }
 
+    /// A drag preview for a single item — icon + filename on a blurred material card.
     private func singleDragPreview(for item: ShelfItem) -> some View {
         VStack(spacing: 2) {
             Image(nsImage: item.icon)
@@ -257,8 +366,25 @@ struct DropZoneView: View {
 
 // MARK: - FileURLTransferable
 
+/// A `Transferable` wrapper that vends an array of file URLs for drag-and-drop operations.
+///
+/// ## Overview
+///
+/// `FileURLTransferable` bridges Thinger's internal ``ShelfItem`` URLs to SwiftUI's
+/// `Transferable` protocol, enabling items to be dragged *out* of the notch into
+/// Finder, Mail, or any other drop target that accepts file URLs.
+///
+/// The `ProxyRepresentation` exposes the **first** URL. While this means only one URL
+/// is advertised to the system's drag pasteboard, it is sufficient for single-item drags.
+/// For multi-item drags, the collapsed ``DropZoneView`` batches all URLs into one
+/// transferable and relies on the proxy for the primary item.
+///
+/// - Note: If `urls` is empty, the representation falls back to the root filesystem URL
+///   (`/`), which acts as a harmless no-op.
 struct FileURLTransferable: Transferable {
+    /// The file URLs to expose via drag-and-drop.
     let urls: [URL]
+
     static var transferRepresentation: some TransferRepresentation {
         ProxyRepresentation { $0.urls.first ?? URL(fileURLWithPath: "/") }
     }
@@ -266,11 +392,44 @@ struct FileURLTransferable: Transferable {
 
 // MARK: - ItemCard
 
+/// A rounded card view that displays an item's system icon and filename.
+///
+/// ## Overview
+///
+/// `ItemCard` renders a single ``ShelfItem`` as a small tile suitable for both
+/// the collapsed stack and the expanded scroll view inside ``DropZoneView``.
+///
+/// ### Compact vs Full Size
+///
+/// | Property | Compact (`true`) | Full (`false`) |
+/// |----------|-----------------|----------------|
+/// | Card width | 55 pt | 65 pt |
+/// | Icon size | 32 pt | 40 pt |
+/// | Corner radius | 8 pt | 10 pt |
+/// | Name lines | 1 | 2 |
+/// | Font size | 8 pt | 9 pt |
+///
+/// ### Visual Treatment
+///
+/// The icon sits inside a rounded rectangle with a subtle top-leading → bottom-trailing
+/// `LinearGradient` (white at 12% → 6% opacity) and a thin white stroke (10% opacity).
+/// A drop shadow adds depth against the dark notch background.
+///
+/// - Parameters:
+///   - item: The ``ShelfItem`` to display.
+///   - compact: `true` for the collapsed stack (smaller cards), `false` for the expanded row.
 struct ItemCard: View {
+
+    /// The shelf item to render.
     let item: ShelfItem
+
+    /// Whether to use the smaller compact layout for the collapsed stack.
     let compact: Bool
 
+    /// The overall card width — varies with ``compact``.
     private var cardWidth: CGFloat { compact ? 55 : 65 }
+
+    /// The system icon size — varies with ``compact``.
     private var iconSize: CGFloat { compact ? 32 : 40 }
 
     var body: some View {
