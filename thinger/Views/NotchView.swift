@@ -173,14 +173,20 @@ struct NotchView: View {
             HStack {
                 Text("hello")
                 Spacer()
-                Button {
-                    openWindow(id: "control-panel")
-                    NSApp.setActivationPolicy(.regular)
-                    NSApp.activate(ignoringOtherApps: true)
+                Menu {
+                    Button {
+                        openWindow(id: "control-panel")
+                        NSApp.setActivationPolicy(.regular)
+                        NSApp.activate(ignoringOtherApps: true)
+                    } label: {
+                        Label("Control Panel", systemImage: "slider.horizontal.3")
+                    }
                 } label: {
                     Image(systemName: "gear")
+                        .foregroundStyle(.white.opacity(0.7))
                 }
-                .buttonStyle(.plain)
+                .menuStyle(.borderlessButton)
+                .frame(width: 16, height: 16)
             }
             .ignoresSafeArea()
 

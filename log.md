@@ -1,3 +1,7 @@
+## 2026-02-23: Fix Control Panel Lifecycle & Settings Menu
+- **Fixed** app quitting when control panel closes — added `applicationShouldTerminateAfterLastWindowClosed → false` in `AppDelegate`.
+- **Changed** gear icon in `NotchView` from a direct button to a `Menu` dropdown containing a "Control Panel" item. The window now opens from the menu, not directly on click.
+
 ## 2026-02-23: Simplified Notch Width & Settings Access
 - **Removed** dynamic width measurement from `WidgetShelf.swift` — deleted `GeometryReader`, `ShelfWidthPreferenceKey`, and `onPreferenceChange`. Width is now purely set by `NotchConfiguration.shared.minOpenWidth`.
 - **Removed** `desiredOpenWidth` from `NotchViewModel.swift` — `openWidth` now reads directly from `NotchConfiguration`.

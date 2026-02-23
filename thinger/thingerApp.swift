@@ -28,6 +28,7 @@ struct ThingerApp: App {
         }
         .defaultSize(width: 420, height: 700)
         .windowResizability(.contentSize)
+        .defaultLaunchBehavior(.suppressed)
 
         MenuBarExtra("Thinger", systemImage: "tray.and.arrow.down.fill", isInserted: $showMenuBarIcon) {
             Button("Toggle Notch") {
@@ -106,6 +107,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSApplication.didChangeScreenParametersNotification,
             object: nil
         )
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return false
     }
     
     func applicationWillTerminate(_ notification: Notification) {
