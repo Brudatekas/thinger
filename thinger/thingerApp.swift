@@ -10,11 +10,10 @@ import SwiftUI
 import Combine
 
 // MARK: - App Entry Point
-/// Main app struct with MenuBarExtra for menu bar icon.
+/// Main app struct. All user-facing controls live inside the notch's gear menu.
 @main
 struct ThingerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @AppStorage("showMenuBarIcon") var showMenuBarIcon = true
     
     var body: some Scene {
         // Control Panel Window
@@ -30,33 +29,6 @@ struct ThingerApp: App {
         .windowResizability(.contentSize)
         .defaultLaunchBehavior(.suppressed)
 
-        MenuBarExtra("Thinger", systemImage: "tray.and.arrow.down.fill", isInserted: $showMenuBarIcon) {
-            Button("Toggle Notch") {
-                appDelegate.toggleNotch()
-            }
-            .keyboardShortcut("t")
-            
-            Button(appDelegate.viewModel.isLocked
-                   ? "Unlock Notch"
-                   : (appDelegate.viewModel.notchState == .open ? "Lock Open" : "Lock Closed")) {
-                appDelegate.viewModel.toggleLock()
-            }
-            .keyboardShortcut("l", modifiers: .command)
-            
-            Divider()
-            
-            Button("Clear All Widgets") {
-                appDelegate.viewModel.clearAllBatches()
-            }
-            
-            Divider()
-            
-            Button("Quit Thinger") {
-                NSApplication.shared.terminate(nil)
-            }
-            .keyboardShortcut("q", modifiers: .command)
-        }
-    
     }
 }
 
@@ -116,14 +88,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         dragDetector?.stopMonitoring()
         NotificationCenter.default.removeObserver(self)
-    }
-    
-    // MARK: - Public Actions (called from MenuBarExtra)
-    
-    func toggleNotch() {
-        Task { @MainActor in
-            viewModel.toggle()
-        }
     }
     
     // MARK: - Window Setup

@@ -175,11 +175,44 @@ struct NotchView: View {
                 Spacer()
                 Menu {
                     Button {
+                        vm.toggle()
+                    } label: {
+                        Label("Toggle Notch", systemImage: "rectangle.topthird.inset.filled")
+                    }
+
+                    Button {
+                        vm.toggleLock()
+                    } label: {
+                        Label(vm.isLocked
+                              ? "Unlock Notch"
+                              : (vm.notchState == .open ? "Lock Open" : "Lock Closed"),
+                              systemImage: vm.isLocked ? "lock.open" : "lock.fill")
+                    }
+
+                    Divider()
+
+                    Button {
+                        vm.clearAllBatches()
+                    } label: {
+                        Label("Clear All Widgets", systemImage: "trash")
+                    }
+
+                    Divider()
+
+                    Button {
                         openWindow(id: "control-panel")
                         NSApp.setActivationPolicy(.regular)
                         NSApp.activate(ignoringOtherApps: true)
                     } label: {
                         Label("Control Panel", systemImage: "slider.horizontal.3")
+                    }
+
+                    Divider()
+
+                    Button {
+                        NSApplication.shared.terminate(nil)
+                    } label: {
+                        Label("Quit Thinger", systemImage: "power")
                     }
                 } label: {
                     Image(systemName: "gear")

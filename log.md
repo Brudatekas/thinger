@@ -1,3 +1,11 @@
+## 2026-02-25: Removed MenuBarExtra — All Controls in Notch Gear Menu
+- **Removed** `MenuBarExtra` from `thingerApp.swift` — no more menu bar icon. All user actions now live in the gear icon menu inside the expanded notch.
+- **Removed** `@AppStorage("showMenuBarIcon")` from `ThingerApp` — no longer needed.
+- **Removed** `toggleNotch()` from `AppDelegate` — was only called from MenuBarExtra.
+- **Added** to `NotchView.swift` gear menu: Toggle Notch, Lock/Unlock (dynamic label), Clear All Widgets, Control Panel, and Quit Thinger.
+- **Updated** `DOCUMENTATION.md` — Chapters 2.1, 9.1, 9.6, 9.8, 12.2, 12.3 now reference gear menu instead of menu bar.
+- Build verified: **BUILD SUCCEEDED**.
+
 ## 2026-02-23: Fix Control Panel Lifecycle & Settings Menu
 - **Fixed** app quitting when control panel closes — added `applicationShouldTerminateAfterLastWindowClosed → false` in `AppDelegate`.
 - **Changed** gear icon in `NotchView` from a direct button to a `Menu` dropdown containing a "Control Panel" item. The window now opens from the menu, not directly on click.

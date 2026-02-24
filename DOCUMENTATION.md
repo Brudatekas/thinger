@@ -11,7 +11,7 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 **Role:** The application root and lifecycle coordinator.
 
 **Detailed Flow:**
-1.  **Entry Point (`ThingerApp`)**: The app uses the SwiftUI `App` lifecycle. It defines a `MenuBarExtra` which provides the system tray icon and menu. This menu allows users to manually toggle the notch, lock/unlock the notch in its current state (open or closed), access settings (placeholder), clear the shelf, or quit the app. The lock button label dynamically reads "Lock Open", "Lock Closed", or "Unlock Notch" depending on the current lock and notch state.
+1.  **Entry Point (`ThingerApp`)**: The app uses the SwiftUI `App` lifecycle. It defines a `Window` scene for the Control Panel. All user-facing controls (toggle, lock, clear widgets, quit, and control panel access) live inside the gear icon menu within the expanded notch — there is no menu bar icon.
 2.  **Hybrid Architecture**: While SwiftUI handles the UI, the app attaches an `AppDelegate` via `@NSApplicationDelegateAdaptor`. This is crucial because standard SwiftUI windows cannot easily replicate the floating, always-on-top, interaction-pass-through behavior required for a notch utility.
 3.  **Window Configuration**: The `AppDelegate` creates an `NSPanel` with a specific collection of style masks (`.borderless`, `.utilityWindow`, `.hudWindow`, `.nonactivatingPanel`).
     *   **Level**: It sets the window level to `.mainMenu + 3`, ensuring it sits above the system menu bar.
@@ -181,7 +181,7 @@ The notch's open/close behavior is governed by five independent signals. If **an
 | 2 | **Global Drag Targeting** | `DragDetector` → `NotchViewModel.globalDragTargeting` | A file is being dragged near the notch region (even from Finder) |
 | 3 | **Widget Drop Targeting** | `FileBatchWidget.onChange(of: isTargeted)` → `NotchViewModel.activeTargetCount` | A file is hovering directly over an individual widget drop zone |
 | 4 | **Sharing Session Active** | `SharingStateManager.preventNotchClose` | An AirDrop/share sheet is currently open |
-| 5 | **Lock** | `NotchViewModel.isLocked` | User has manually frozen the notch via the menu bar |
+| 5 | **Lock** | `NotchViewModel.isLocked` | User has manually frozen the notch via the gear menu |
 
 ### 9.2 Hover Detection & The Close Timer
 
@@ -286,7 +286,7 @@ The lock is the ultimate override. When `isLocked` is `true`:
 - `toggle()` calls `open` or `close`, so it's also a no-op.
 - `NotchView.handleHover` returns immediately at the top of the function.
 
-The notch is frozen in whatever state it was in when the lock was enabled. The user toggles the lock from the menu bar (`⌘L`) or programmatically via `toggleLock()`.
+The notch is frozen in whatever state it was in when the lock was enabled. The user toggles the lock from the gear menu inside the notch or programmatically via `toggleLock()`.
 
 ### 9.7 Window Frame Strategy
 
@@ -309,12 +309,12 @@ stateDiagram-v2
     
     Closed --> Open : Hover enters notch
     Closed --> Open : File dragged into trigger rect
-    Closed --> Open : Menu bar Toggle
+    Closed --> Open : Gear menu Toggle
     
     note right of Open : KeyframeAnimator handles\nthe visual two-phase morph\n(pill expand → full drop)
     
     Open --> Closed : Hover exits + 300ms timer\n(no targeting, no sharing, not locked)
-    Open --> Closed : Menu bar Toggle
+    Open --> Closed : Gear menu Toggle
     
     Open --> Open : Drop zone targeted (timer cancelled)
     Open --> Open : Share session active (close blocked)
@@ -457,7 +457,7 @@ All values persist via `UserDefaults` (`didSet` pattern). Computed helpers `notc
 
 ### 12.2 ControlPanelView
 
-`ControlPanelView` (`Views/ControlPanelView.swift`) opens from either the gear icon inside the expanded notch or the menu bar **Settings…** item. It uses `Window(id: "control-panel")` as its scene and temporarily switches the app to `.regular` activation policy so it can receive focus.
+`ControlPanelView` (`Views/ControlPanelView.swift`) opens from the gear icon inside the expanded notch. It uses `Window(id: "control-panel")` as its scene and temporarily switches the app to `.regular` activation policy so it can receive focus.
 
 The view is organized into 7 `SectionCard` groups with `SliderRow` components:
 1. **Notch Controls** — Open/Close/Toggle buttons, lock toggle, clear-all.
@@ -477,4 +477,4 @@ All hardcoded values across the codebase were replaced with `NotchConfiguration.
 - `NotchViewModel.swift` — hover delay, drag debounce, open dimensions.
 - `DropZoneView.swift` — all 7 spring animations.
 - `WidgetShelf.swift` — 2 spring animations + `minOpenWidth` reference.
-- `thingerApp.swift` — `Window` scene for the control panel, `openWindow(id:)` in menu bar.
+- `thingerApp.swift` — `Window` scene for the control panel.
