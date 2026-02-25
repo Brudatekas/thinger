@@ -44,7 +44,9 @@ struct ControlPanelView: View {
                     timingSection
                     shadowSection
                     widgetAnimationSection
+                    #if DEBUG
                     debugSection
+                    #endif
                     resetSection
                 }
                 .padding(20)
@@ -254,6 +256,7 @@ struct ControlPanelView: View {
 
     // MARK: - Section: Debug
 
+    #if DEBUG
     private var debugSection: some View {
         SectionCard(title: "Debug", icon: "ant") {
             SliderRow(
@@ -265,6 +268,7 @@ struct ControlPanelView: View {
             )
         }
     }
+    #endif
 
     // MARK: - Reset
 

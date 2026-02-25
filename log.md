@@ -1,10 +1,10 @@
 ## 2026-02-25: Fix Toolbar Overlapping Physical Notch
 - **Modified** `Views/NotchView.swift` — added a center `Spacer` with `minWidth: closedWidth` between the tab picker and gear menu in the toolbar HStack, so neither element overlaps the physical notch cutout.
 
-## 2026-02-25: Debug Vertical Offset
-- **Modified** `Models/NotchConfiguration.swift` — added `debugVerticalOffset` property (default 0, persisted via UserDefaults).
-- **Modified** `thingerApp.swift` — `positionWindow()` subtracts `debugVerticalOffset` from Y origin. Added Combine subscription for live repositioning.
-- **Modified** `Views/ControlPanelView.swift` — added Debug section with vertical offset slider (0–200 pt).
+## 2026-02-25: Debug Vertical Offset (Refined)
+- **Modified** `Models/NotchConfiguration.swift` — wrapped `debugVerticalOffset` in `#if DEBUG`.
+- **Modified** `thingerApp.swift` — wrapped Combine subscription and `positionWindow()` usage in `#if DEBUG`. Control panel `onDisappear` resets offset to 0. Control panel `onAppear` positions window to right of notch max-X + 16pt.
+- **Modified** `Views/ControlPanelView.swift` — wrapped debug section in `#if DEBUG`.
 
 ## 2026-02-25: Teleprompter Feature
 - **Created** `ViewModels/TeleprompterViewModel.swift` — `@MainActor ObservableObject` with script text (persisted), 60fps scroll timer, playback controls (play/pause/toggle), navigation (skip/rewind/reset), and loading from clipboard or file.

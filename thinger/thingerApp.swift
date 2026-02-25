@@ -21,8 +21,26 @@ struct ThingerApp: App {
             ControlPanelView()
                 .environmentObject(appDelegate.viewModel)
                 .onDisappear {
+                    // Reset debug offset when panel closes
+                    #if DEBUG
+                    NotchConfiguration.shared.debugVerticalOffset = 0
+                    #endif
                     // Revert to accessory mode when control panel closes
                     NSApp.setActivationPolicy(.accessory)
+                }
+                .onAppear {
+                    // Position control panel to the right of the notch
+                    DispatchQueue.main.async {
+                        if let cpWindow = NSApp.windows.first(where: { $0.title == "Control Panel" }),
+                           let screen = NSScreen.main {
+                            let notchDims = NotchDimensions.shared
+                            let screenFrame = screen.frame
+                            // Place the panel just right of the notch's right edge
+                            let notchMaxX = screenFrame.midX + notchDims.notchWidth / 2 + 16
+                            let panelY = screenFrame.maxY - cpWindow.frame.height - 40
+                            cpWindow.setFrameOrigin(NSPoint(x: notchMaxX, y: panelY))
+                        }
+                    }
                 }
         }
         .defaultSize(width: 420, height: 700)
@@ -166,6 +184,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .store(in: &cancellables)
 
         // Reposition window when debug vertical offset changes
+        #if DEBUG
         config.$debugVerticalOffset
             .removeDuplicates()
             .sink { [weak self] _ in
@@ -173,6 +192,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.positionWindow(window, on: screen)
             }
             .store(in: &cancellables)
+        #endif
     }
     
     /// Positions the window at the top center of the screen.
@@ -180,12 +200,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func positionWindow(_ window: NSWindow, on screen: NSScreen) {
         let screenFrame = screen.frame
         let size = viewModel.openSize
-        let debugOffset = NotchConfiguration.shared.debugVerticalOffset
+        
+        #if DEBUG
+        let debugOffset = CGFloat(NotchConfiguration.shared.debugVerticalOffset)
+        #else
+        let debugOffset: CGFloat = 0
+        #endif
         
         // Use setFrameOrigin like Boring Notch does
         window.setFrameOrigin(NSPoint(
             x: screenFrame.origin.x + (screenFrame.width / 2) - size.width / 2,
-            y: screenFrame.origin.y + screenFrame.height - size.height - CGFloat(debugOffset)
+            y: screenFrame.origin.y + screenFrame.height - size.height - debugOffset
         ))
     }
     

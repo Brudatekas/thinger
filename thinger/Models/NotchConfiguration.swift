@@ -159,10 +159,12 @@ final class NotchConfiguration: ObservableObject {
 
     // MARK: - Debug
 
+    #if DEBUG
     /// Vertical offset for debugging notch positioning. Not persisted across resets.
     @Published var debugVerticalOffset: Double {
         didSet { defaults.set(debugVerticalOffset, forKey: "cfg.debugVerticalOffset") }
     }
+    #endif
 
     // MARK: - Teleprompter
 
@@ -245,7 +247,9 @@ final class NotchConfiguration: ObservableObject {
         self.dragDebounceDelay = defaults.object(forKey: "cfg.dragDebounceDelay") as? Int ?? Defaults.dragDebounceDelay
         self.shadowRadius = defaults.object(forKey: "cfg.shadowRadius") as? Double ?? Defaults.shadowRadius
         self.shadowOffsetY = defaults.object(forKey: "cfg.shadowOffsetY") as? Double ?? Defaults.shadowOffsetY
+        #if DEBUG
         self.debugVerticalOffset = defaults.object(forKey: "cfg.debugVerticalOffset") as? Double ?? 0
+        #endif
         self.teleprompterSpeed = defaults.object(forKey: "cfg.teleprompterSpeed") as? Double ?? Defaults.teleprompterSpeed
         self.teleprompterFontSize = defaults.object(forKey: "cfg.teleprompterFontSize") as? Double ?? Defaults.teleprompterFontSize
         self.teleprompterMirror = defaults.object(forKey: "cfg.teleprompterMirror") as? Bool ?? Defaults.teleprompterMirror
