@@ -171,7 +171,14 @@ struct NotchView: View {
         VStack{
 
             HStack {
-                Text("hello")
+                Picker("", selection: $vm.activeNotchTab) {
+                    Image(systemName: "tray").tag(NotchTab.shelf)
+                    Image(systemName: "text.justify.leading").tag(NotchTab.teleprompter)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 80)
+                .colorMultiply(.white)
+
                 Spacer()
                 Menu {
                     Button {
@@ -223,8 +230,14 @@ struct NotchView: View {
             }
             .ignoresSafeArea()
 
-            WidgetShelf()
-                .environmentObject(vm)
+            switch vm.activeNotchTab {
+            case .shelf:
+                WidgetShelf()
+                    .environmentObject(vm)
+            case .teleprompter:
+                TeleprompterView()
+                    .environmentObject(vm)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
 

@@ -53,6 +53,11 @@ import Combine
 /// ### Shadow
 /// - ``shadowRadius``
 /// - ``shadowOffsetY``
+///
+/// ### Teleprompter
+/// - ``teleprompterSpeed``
+/// - ``teleprompterFontSize``
+/// - ``teleprompterMirror``
 @MainActor
 final class NotchConfiguration: ObservableObject {
 
@@ -152,6 +157,23 @@ final class NotchConfiguration: ObservableObject {
         didSet { defaults.set(shadowOffsetY, forKey: "cfg.shadowOffsetY") }
     }
 
+    // MARK: - Teleprompter
+
+    /// Teleprompter scroll speed in pixels per second.
+    @Published var teleprompterSpeed: Double {
+        didSet { defaults.set(teleprompterSpeed, forKey: "cfg.teleprompterSpeed") }
+    }
+
+    /// Teleprompter font size in points.
+    @Published var teleprompterFontSize: Double {
+        didSet { defaults.set(teleprompterFontSize, forKey: "cfg.teleprompterFontSize") }
+    }
+
+    /// Whether the teleprompter text is horizontally mirrored.
+    @Published var teleprompterMirror: Bool {
+        didSet { defaults.set(teleprompterMirror, forKey: "cfg.teleprompterMirror") }
+    }
+
     // MARK: - Defaults
 
     /// All default values in one place for easy reset.
@@ -170,6 +192,9 @@ final class NotchConfiguration: ObservableObject {
         static let dragDebounceDelay: Int = 50
         static let shadowRadius: Double = 20
         static let shadowOffsetY: Double = 10
+        static let teleprompterSpeed: Double = 50
+        static let teleprompterFontSize: Double = 28
+        static let teleprompterMirror: Bool = false
     }
 
     // MARK: - Reset
@@ -190,6 +215,9 @@ final class NotchConfiguration: ObservableObject {
         dragDebounceDelay = Defaults.dragDebounceDelay
         shadowRadius = Defaults.shadowRadius
         shadowOffsetY = Defaults.shadowOffsetY
+        teleprompterSpeed = Defaults.teleprompterSpeed
+        teleprompterFontSize = Defaults.teleprompterFontSize
+        teleprompterMirror = Defaults.teleprompterMirror
     }
 
     // MARK: - Init
@@ -210,5 +238,8 @@ final class NotchConfiguration: ObservableObject {
         self.dragDebounceDelay = defaults.object(forKey: "cfg.dragDebounceDelay") as? Int ?? Defaults.dragDebounceDelay
         self.shadowRadius = defaults.object(forKey: "cfg.shadowRadius") as? Double ?? Defaults.shadowRadius
         self.shadowOffsetY = defaults.object(forKey: "cfg.shadowOffsetY") as? Double ?? Defaults.shadowOffsetY
+        self.teleprompterSpeed = defaults.object(forKey: "cfg.teleprompterSpeed") as? Double ?? Defaults.teleprompterSpeed
+        self.teleprompterFontSize = defaults.object(forKey: "cfg.teleprompterFontSize") as? Double ?? Defaults.teleprompterFontSize
+        self.teleprompterMirror = defaults.object(forKey: "cfg.teleprompterMirror") as? Bool ?? Defaults.teleprompterMirror
     }
 }

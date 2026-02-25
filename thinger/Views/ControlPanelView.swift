@@ -34,18 +34,25 @@ struct ControlPanelView: View {
     @ObservedObject var config = NotchConfiguration.shared
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                notchControlsSection
-                notchAnimationSection
-                dimensionsSection
-                cornerRadiiSection
-                timingSection
-                shadowSection
-                widgetAnimationSection
-                resetSection
+        TabView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    notchControlsSection
+                    notchAnimationSection
+                    dimensionsSection
+                    cornerRadiiSection
+                    timingSection
+                    shadowSection
+                    widgetAnimationSection
+                    resetSection
+                }
+                .padding(20)
             }
-            .padding(20)
+            .tabItem { Label("Notch", systemImage: "rectangle.topthird.inset.filled") }
+
+            TeleprompterSettingsView(tvm: vm.teleprompterVM)
+                .environmentObject(vm)
+                .tabItem { Label("Teleprompter", systemImage: "text.justify.leading") }
         }
         .frame(minWidth: 380, idealWidth: 420, minHeight: 500, idealHeight: 700)
     }

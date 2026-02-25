@@ -2,8 +2,8 @@
 //  thingerApp.swift
 //  thinger
 //
-//  A macOS notch utility app with widget support and drag-drop AirDrop integration.
-//  Based on Boring Notch patterns.
+//  A macOS notch utility app with widget support, drag-drop AirDrop integration,
+//  and teleprompter feature with global keyboard shortcuts.
 //
 
 import SwiftUI
@@ -46,6 +46,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     /// Global drag detector for file drops
     var dragDetector: DragDetector?
+
+    /// Monitors for teleprompter keyboard shortcuts
+    private var localKeyMonitor: Any?
+    private var globalKeyMonitor: Any?
     
     // MARK: - Window Configuration
     
@@ -71,7 +75,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Setup global drag detection
         setupDragDetector()
-        
+
+        // Setup teleprompter keyboard shortcuts
+        setupTeleprompterShortcuts()
+
         // Listen for screen changes
         NotificationCenter.default.addObserver(
             self,
@@ -87,6 +94,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationWillTerminate(_ notification: Notification) {
         dragDetector?.stopMonitoring()
+        if let monitor = localKeyMonitor { NSEvent.removeMonitor(monitor) }
+        if let monitor = globalKeyMonitor { NSEvent.removeMonitor(monitor) }
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -218,5 +227,63 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Reconfigure drag detector for new screen layout
         setupDragDetector()
+    }
+
+    // MARK: - Teleprompter Shortcuts
+
+    /// Registers local and global keyboard event monitors for teleprompter control.
+    ///
+    /// Shortcuts:
+    /// - ⌘Space: Play / Pause
+    /// - ⌘↑: Increase speed (+10 px/s)
+    /// - ⌘↓: Decrease speed (−10 px/s)
+    /// - ⌘→: Skip forward 3 lines
+    /// - ⌘←: Rewind 3 lines
+    /// - ⌘R: Reset to top
+    private func setupTeleprompterShortcuts() {
+        localKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            if self?.handleTeleprompterKey(event) == true {
+                return nil // consume the event
+            }
+            return event
+        }
+
+        globalKeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            self?.handleTeleprompterKey(event)
+        }
+    }
+
+    /// Handles a key event for teleprompter shortcuts.
+    /// Returns `true` if the event was handled (consumed).
+    @discardableResult
+    private func handleTeleprompterKey(_ event: NSEvent) -> Bool {
+        // Only respond to ⌘+key combos
+        guard event.modifierFlags.contains(.command) else { return false }
+
+        let tvm = viewModel.teleprompterVM
+        let config = NotchConfiguration.shared
+
+        switch event.keyCode {
+        case 49: // Space
+            tvm.togglePlayback()
+            return true
+        case 126: // Up arrow
+            config.teleprompterSpeed = min(config.teleprompterSpeed + 10, 200)
+            return true
+        case 125: // Down arrow
+            config.teleprompterSpeed = max(config.teleprompterSpeed - 10, 10)
+            return true
+        case 124: // Right arrow
+            tvm.skipForward()
+            return true
+        case 123: // Left arrow
+            tvm.rewind()
+            return true
+        case 15: // R
+            tvm.reset()
+            return true
+        default:
+            return false
+        }
     }
 }

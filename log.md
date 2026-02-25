@@ -1,3 +1,15 @@
+## 2026-02-25: Teleprompter Feature
+- **Created** `ViewModels/TeleprompterViewModel.swift` — `@MainActor ObservableObject` with script text (persisted), 60fps scroll timer, playback controls (play/pause/toggle), navigation (skip/rewind/reset), and loading from clipboard or file.
+- **Created** `Views/TeleprompterView.swift` — scrolling text display with gradient edge masks, bottom toolbar (play/pause/rewind/skip/reset/speed/progress/clear), empty state with paste/load buttons, and optional mirror mode.
+- **Created** `Views/TeleprompterSettingsView.swift` — control panel tab with script editor, playback controls, speed/font size sliders, mirror toggle, and keyboard shortcut reference.
+- **Modified** `Models/NotchConfiguration.swift` — added `teleprompterSpeed` (50 px/s), `teleprompterFontSize` (28 pt), `teleprompterMirror` (false) with UserDefaults persistence, defaults, and reset support.
+- **Modified** `ViewModels/NotchViewModel.swift` — added `NotchTab` enum (`.shelf`, `.teleprompter`), `activeNotchTab` published property, `teleprompterVM` instance. Auto-switches to shelf tab when files are dragged toward the notch.
+- **Modified** `Views/NotchView.swift` — replaced placeholder "hello" text with segmented tab picker. Expanded content now switches between `WidgetShelf` and `TeleprompterView` based on active tab.
+- **Modified** `Views/ControlPanelView.swift` — wrapped existing settings in a `TabView` with "Notch" and "Teleprompter" tabs.
+- **Modified** `thingerApp.swift` — registered global keyboard shortcuts (⌘Space play/pause, ⌘↑/↓ speed, ⌘←/→ skip/rewind, ⌘R reset) via local and global `NSEvent` monitors. Cleanup in `applicationWillTerminate`.
+- **Updated** `DOCUMENTATION.md` — added Chapter 13 covering tab system, ViewModel, view, settings, configuration, keyboard shortcuts, and control panel integration.
+- Build verified: **BUILD SUCCEEDED**. Tests verified: **42/42 PASSED**.
+
 ## 2026-02-25: Removed MenuBarExtra — All Controls in Notch Gear Menu
 - **Removed** `MenuBarExtra` from `thingerApp.swift` — no more menu bar icon. All user actions now live in the gear icon menu inside the expanded notch.
 - **Removed** `@AppStorage("showMenuBarIcon")` from `ThingerApp` — no longer needed.

@@ -18,10 +18,28 @@ enum NotchState: Equatable {
     case open
 }
 
+// MARK: - NotchTab
+
+/// The tabs available in the expanded notch content area.
+enum NotchTab: String, CaseIterable {
+    case shelf
+    case teleprompter
+}
+
 // MARK: - NotchViewModel
 
 @MainActor
 class NotchViewModel: ObservableObject {
+
+    // MARK: - Tab State
+
+    /// The currently active tab in the expanded notch.
+    @Published var activeNotchTab: NotchTab = .shelf
+
+    // MARK: - Teleprompter
+
+    /// Shared teleprompter view model.
+    let teleprompterVM = TeleprompterViewModel()
 
     // MARK: - Open Dimensions
 
@@ -97,6 +115,10 @@ class NotchViewModel: ObservableObject {
         dragDebounceTask?.cancel()
         if targeted {
             globalDragTargeting = true
+            // Auto-switch to shelf tab when files are dragged toward the notch
+            if activeNotchTab != .shelf {
+                activeNotchTab = .shelf
+            }
         } else {
             dragDebounceTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(NotchConfiguration.shared.dragDebounceDelay))

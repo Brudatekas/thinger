@@ -478,3 +478,74 @@ All hardcoded values across the codebase were replaced with `NotchConfiguration.
 - `DropZoneView.swift` — all 7 spring animations.
 - `WidgetShelf.swift` — 2 spring animations + `minOpenWidth` reference.
 - `thingerApp.swift` — `Window` scene for the control panel.
+
+---
+
+## Chapter 13: Teleprompter Feature
+
+### 13.1 Tab System
+
+The expanded notch content uses a tab system to switch between the **Shelf** (file drop zone) and the **Teleprompter**. The `NotchTab` enum (`.shelf`, `.teleprompter`) lives in `NotchViewModel.swift`, and `activeNotchTab` is a `@Published` property on `NotchViewModel`. A segmented `Picker` in `NotchView`'s toolbar row controls the active tab.
+
+**Auto-switch on drag**: When files are dragged toward the notch (`updateGlobalDragTargeting(true)`), `activeNotchTab` automatically switches to `.shelf` so users don't accidentally drop files onto the teleprompter.
+
+### 13.2 TeleprompterViewModel
+
+`ViewModels/TeleprompterViewModel.swift` is an `@MainActor ObservableObject` managing:
+
+| Property | Type | Purpose |
+|----------|------|---------|
+| `scriptText` | `String` | Full script text (persisted via UserDefaults) |
+| `scrollOffset` | `CGFloat` | Current vertical scroll position |
+| `isPlaying` | `Bool` | Whether auto-scroll is active |
+| `contentHeight` | `CGFloat` | Total rendered text height (set by view) |
+| `viewportHeight` | `CGFloat` | Visible area height (set by view) |
+
+Speed, font size, and mirror settings are read from `NotchConfiguration.shared`.
+
+A 60fps `Timer` drives smooth scrolling by incrementing `scrollOffset` by `speed / 60.0` each tick. Auto-pauses when reaching the end of the script.
+
+### 13.3 TeleprompterView
+
+`Views/TeleprompterView.swift` — the notch display:
+- **Empty state**: Shows "No Script Loaded" with Paste and Load File buttons.
+- **Playing state**: Text scrolls upward driven by `scrollOffset`, with gradient masks at top and bottom edges for readability.
+- **Bottom toolbar**: Play/Pause, Rewind, Skip, Reset, speed indicator, progress %, and Clear buttons.
+- **Mirror mode**: Optional horizontal flip via `scaleEffect(x: -1)` for real teleprompter glass.
+
+### 13.4 TeleprompterSettingsView
+
+`Views/TeleprompterSettingsView.swift` — a dedicated tab in the Control Panel with sections:
+1. **Script** — TextEditor, paste/load/clear buttons.
+2. **Playback** — Speed slider (10–200 px/s), font size slider (14–72 pt), play/pause/rewind/skip/reset buttons.
+3. **Display** — Mirror toggle.
+4. **Keyboard Shortcuts** — Read-only reference table.
+
+### 13.5 Configuration
+
+`NotchConfiguration` gained three new properties:
+
+| Property | Default | Key |
+|----------|---------|-----|
+| `teleprompterSpeed` | 50 px/s | `cfg.teleprompterSpeed` |
+| `teleprompterFontSize` | 28 pt | `cfg.teleprompterFontSize` |
+| `teleprompterMirror` | false | `cfg.teleprompterMirror` |
+
+All are included in `resetToDefaults()`.
+
+### 13.6 Keyboard Shortcuts
+
+Registered in `AppDelegate.setupTeleprompterShortcuts()` via `NSEvent.addLocalMonitorForEvents` and `addGlobalMonitorForEvents`:
+
+| Shortcut | Action |
+|----------|--------|
+| ⌘ Space | Play / Pause |
+| ⌘ ↑ | Increase speed (+10 px/s) |
+| ⌘ ↓ | Decrease speed (−10 px/s) |
+| ⌘ → | Skip forward 3 lines |
+| ⌘ ← | Rewind 3 lines |
+| ⌘ R | Reset to top |
+
+### 13.7 Control Panel Integration
+
+`ControlPanelView` now uses a `TabView` with two tabs: **Notch** (existing 7 settings sections) and **Teleprompter** (`TeleprompterSettingsView`).
