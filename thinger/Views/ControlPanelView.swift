@@ -44,6 +44,7 @@ struct ControlPanelView: View {
                     timingSection
                     shadowSection
                     widgetAnimationSection
+                    debugSection
                     resetSection
                 }
                 .padding(20)
@@ -247,6 +248,20 @@ struct ControlPanelView: View {
                 range: 0.1...2.0,
                 step: 0.05,
                 format: "%.2f"
+            )
+        }
+    }
+
+    // MARK: - Section: Debug
+
+    private var debugSection: some View {
+        SectionCard(title: "Debug", icon: "ant") {
+            SliderRow(
+                label: "Vertical Offset",
+                value: $config.debugVerticalOffset,
+                range: 0...200,
+                step: 1,
+                format: "%.0f pt"
             )
         }
     }

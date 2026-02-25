@@ -164,6 +164,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.positionWindow(window, on: screen)
             }
             .store(in: &cancellables)
+
+        // Reposition window when debug vertical offset changes
+        config.$debugVerticalOffset
+            .removeDuplicates()
+            .sink { [weak self] _ in
+                guard let self, let window = self.window, let screen = NSScreen.main else { return }
+                self.positionWindow(window, on: screen)
+            }
+            .store(in: &cancellables)
     }
     
     /// Positions the window at the top center of the screen.
@@ -171,11 +180,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func positionWindow(_ window: NSWindow, on screen: NSScreen) {
         let screenFrame = screen.frame
         let size = viewModel.openSize
+        let debugOffset = NotchConfiguration.shared.debugVerticalOffset
         
         // Use setFrameOrigin like Boring Notch does
         window.setFrameOrigin(NSPoint(
             x: screenFrame.origin.x + (screenFrame.width / 2) - size.width / 2,
-            y: screenFrame.origin.y + screenFrame.height - size.height
+            y: screenFrame.origin.y + screenFrame.height - size.height - CGFloat(debugOffset)
         ))
     }
     

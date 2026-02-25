@@ -171,6 +171,7 @@ struct NotchView: View {
         VStack{
 
             HStack {
+                // Left side — tab picker
                 Picker("", selection: $vm.activeNotchTab) {
                     Image(systemName: "tray").tag(NotchTab.shelf)
                     Image(systemName: "text.justify.leading").tag(NotchTab.teleprompter)
@@ -180,6 +181,9 @@ struct NotchView: View {
                 .colorMultiply(.white)
 
                 Spacer()
+                    .frame(minWidth: closedWidth)
+
+                // Right side — gear menu
                 Menu {
                     Button {
                         vm.toggle()
