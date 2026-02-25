@@ -1,3 +1,7 @@
+## 2026-02-25: Restored MenuBarExtra
+- **Modified** `thingerApp.swift` — re-added `MenuBarExtra` scene with a system icon (`rectangle.topthird.inset.filled`). Provides **Toggle Notch**, **Lock/Unlock Notch**, and **Quit Thinger** actions directly from the menu bar, ensuring the app is always accessible even if notch hover interaction fails.
+- **Updated** `DOCUMENTATION.md` — Chapter 2.1 updated to reflect the restored menu bar icon.
+
 ## 2026-02-25: Fix Toolbar Overlapping Physical Notch
 - **Modified** `Views/NotchView.swift` — added a center `Spacer` with `minWidth: closedWidth` between the tab picker and gear menu in the toolbar HStack, so neither element overlaps the physical notch cutout.
 

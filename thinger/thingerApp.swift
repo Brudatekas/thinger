@@ -22,9 +22,9 @@ struct ThingerApp: App {
                 .environmentObject(appDelegate.viewModel)
                 .onDisappear {
                     // Reset debug offset when panel closes
-                    #if DEBUG
+//                    #if DEBUG
                     NotchConfiguration.shared.debugVerticalOffset = 0
-                    #endif
+//                    #endif
                     // Revert to accessory mode when control panel closes
                     NSApp.setActivationPolicy(.accessory)
                 }
@@ -47,6 +47,31 @@ struct ThingerApp: App {
         .windowResizability(.contentSize)
         .defaultLaunchBehavior(.suppressed)
 
+        // Menu Bar Icon
+        MenuBarExtra("Thinger", systemImage: "rectangle.topthird.inset.filled") {
+            Button {
+                appDelegate.viewModel.toggle()
+            } label: {
+                Label("Toggle Notch", systemImage: "rectangle.topthird.inset.filled")
+            }
+
+            Button {
+                appDelegate.viewModel.toggleLock()
+            } label: {
+                Label(appDelegate.viewModel.isLocked
+                      ? "Unlock Notch"
+                      : (appDelegate.viewModel.notchState == .open ? "Lock Open" : "Lock Closed"),
+                      systemImage: appDelegate.viewModel.isLocked ? "lock.open" : "lock.fill")
+            }
+
+            Divider()
+
+            Button {
+                NSApplication.shared.terminate(nil)
+            } label: {
+                Label("Quit Thinger", systemImage: "power")
+            }
+        }
     }
 }
 
@@ -184,7 +209,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .store(in: &cancellables)
 
         // Reposition window when debug vertical offset changes
-        #if DEBUG
+//        #if DEBUG
         config.$debugVerticalOffset
             .removeDuplicates()
             .sink { [weak self] _ in
@@ -192,7 +217,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.positionWindow(window, on: screen)
             }
             .store(in: &cancellables)
-        #endif
+//        #endif
     }
     
     /// Positions the window at the top center of the screen.
@@ -201,11 +226,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let screenFrame = screen.frame
         let size = viewModel.openSize
         
-        #if DEBUG
+//        #if DEBUG
         let debugOffset = CGFloat(NotchConfiguration.shared.debugVerticalOffset)
-        #else
-        let debugOffset: CGFloat = 0
-        #endif
+//        #else
+//        let debugOffset: CGFloat = 0
+//        #endif
         
         // Use setFrameOrigin like Boring Notch does
         window.setFrameOrigin(NSPoint(

@@ -11,7 +11,7 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 **Role:** The application root and lifecycle coordinator.
 
 **Detailed Flow:**
-1.  **Entry Point (`ThingerApp`)**: The app uses the SwiftUI `App` lifecycle. It defines a `Window` scene for the Control Panel. All user-facing controls (toggle, lock, clear widgets, quit, and control panel access) live inside the gear icon menu within the expanded notch — there is no menu bar icon.
+1.  **Entry Point (`ThingerApp`)**: The app uses the SwiftUI `App` lifecycle. It defines a `Window` scene for the Control Panel and a `MenuBarExtra` scene that provides a persistent menu bar icon. The menu bar offers **Toggle Notch**, **Lock/Unlock Notch**, and **Quit Thinger** actions. Additional controls (clear widgets, control panel access) live inside the gear icon menu within the expanded notch.
 2.  **Hybrid Architecture**: While SwiftUI handles the UI, the app attaches an `AppDelegate` via `@NSApplicationDelegateAdaptor`. This is crucial because standard SwiftUI windows cannot easily replicate the floating, always-on-top, interaction-pass-through behavior required for a notch utility.
 3.  **Window Configuration**: The `AppDelegate` creates an `NSPanel` with a specific collection of style masks (`.borderless`, `.utilityWindow`, `.hudWindow`, `.nonactivatingPanel`).
     *   **Level**: It sets the window level to `.mainMenu + 3`, ensuring it sits above the system menu bar.
