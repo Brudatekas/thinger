@@ -50,9 +50,7 @@ struct WirrorView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear {
-            if wvm.authorizationStatus == .authorized {
-                wvm.startSession()
-            }
+            wvm.startSession()
         }
         .onDisappear {
             wvm.stopSession()
@@ -158,6 +156,7 @@ struct WirrorView: View {
 
             // Bottom controls overlay
             VStack {
+                topControls
                 Spacer()
                 bottomControls
             }
@@ -165,6 +164,17 @@ struct WirrorView: View {
     }
 
     // MARK: - Bottom Controls
+    private var topControls: some View {
+        HStack(spacing: 12) {
+            Spacer()
+            Button {
+                wvm.stopSession()
+            } label: {
+                Image(systemName: "stop.circle.fill")
+            }
+            .buttonStyle(.plain)
+        }
+    }
 
     private var bottomControls: some View {
         HStack(spacing: 12) {

@@ -207,6 +207,7 @@ class WirrorViewModel: ObservableObject {
 
     /// Starts the camera capture session on a background thread.
     func startSession() {
+//        guard !isRunning else { return }
         guard authorizationStatus == .authorized else {
             if authorizationStatus == .notDetermined {
                 requestAccess()
