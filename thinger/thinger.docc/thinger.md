@@ -47,3 +47,7 @@ The app uses a hybrid SwiftUI/AppKit architecture: SwiftUI drives the UI, while 
 - ``FileURLTransferable``
 - ``WidgetTrayView``
 - ``AirDropWidgetView``
+
+### Features
+
+- <doc:Wirror>

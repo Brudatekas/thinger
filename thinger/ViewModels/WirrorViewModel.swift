@@ -245,8 +245,8 @@ class WirrorViewModel: ObservableObject {
     func scheduleStop() {
         scheduledStopTask?.cancel()
         scheduledStopTask = Task {
-            // Keep the camera running for 5 seconds so it can reopen instantly
-            try? await Task.sleep(nanoseconds: 5_000_000_000)
+            // Keep the camera running for 10 seconds so it can reopen instantly
+            try? await Task.sleep(nanoseconds: 10_000_000_000)
             guard !Task.isCancelled else { return }
             self.stopSession()
         }
