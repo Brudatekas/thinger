@@ -35,9 +35,7 @@ struct TeleprompterView: View {
     @EnvironmentObject var vm: NotchViewModel
     @ObservedObject private var config = NotchConfiguration.shared
 
-    private var tvm: TeleprompterViewModel {
-        vm.teleprompterVM
-    }
+    @EnvironmentObject var tvm: TeleprompterViewModel
 
     var body: some View {
         ZStack {

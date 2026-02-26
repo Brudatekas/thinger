@@ -1,3 +1,21 @@
+## 2026-02-27: Lazy Initialization of Camera Capture Session
+- **Modified** `ViewModels/WirrorViewModel.swift` — Refactored `captureSession` to be an optional `@Published` variable rather than instantiating it immediately. The `AVCaptureSession` is now only initialized inside `configureSession()`, meaning the camera hardware is no longer pre-warmed or triggered when the application launches; it is solely activated when the Wirror tab is actively clicked and displayed.
+- **Modified** `Views/WirrorView.swift` — Updated `CameraPreviewView` integration to unwrap the now-optional `wvm.captureSession`, showing a placeholder black background when the session is not yet active.
+- **Modified** `thingerTests/WirrorViewModelTests.swift` — Updated testing expects to accommodate the new optional typings on `captureSession`.
+
+## 2026-02-26: Refactored NSPanel to NotchWindow
+- **Created** `Views/NotchWindow.swift` — Extracted the custom `NSPanel` configuration from `thingerApp.swift` into a dedicated subclass `NotchWindow`. This encapsulates the heavy window setup (style masks, floating behaviors, transparency, background movement) into its own class.
+- **Modified** `thingerApp.swift` — Replaced direct instantiation of `NSPanel` with the new `NotchWindow` class.
+- **Updated** `DOCUMENTATION.md` to reflect the transition from `NSPanel` to `NotchWindow` throughout the text.
+
+## 2026-02-26: ViewModels State Publishing and Notch Lock Defaults
+- **Modified** `ViewModels/NotchViewModel.swift` — Changed `isLocked` to a `@Published var isLocked: Bool = true` default (automatically locked closed on app open) and removed `@AppStorage` which didn't trigger `objectWillChange`. The toggle label updates correctly now.
+- **Modified** `ViewModels/NotchViewModel.swift` — Added `didSet` and an initializer read from `UserDefaults` for `activeNotchTab` so the active tab persists cleanly while properly publishing changes to the UI.
+- **Modified** `Views/NotchView.swift` — Injected `vm.teleprompterVM` and `vm.wirrorVM` into their respective views via `.environmentObject()` so child views correctly subscribe to the nested view models.
+- **Modified** `Views/TeleprompterView.swift` and `Views/WirrorView.swift` — Replaced computed variables with `@EnvironmentObject` to ensure dynamic updates (e.g., speed, zoom, font size adjustments) actually trigger a re-render.
+
+## 2026-02-26: Fix App Intents Build Errors
+
 ## 2026-02-26: Added Wirror (Webcam Mirror) Feature & Fixed Camera Crash
 - **Created** `ViewModels/WirrorViewModel.swift` — `@MainActor ObservableObject` with `AVCaptureSession` managing the camera feed, authorization states, mirroring, zoom, and brightness.
 - **Created** `Views/CameraPreviewView.swift` — `NSViewRepresentable` bridge embedding `AVCaptureVideoPreviewLayer`.

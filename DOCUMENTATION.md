@@ -13,7 +13,7 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 **Detailed Flow:**
 1.  **Entry Point (`ThingerApp`)**: The app uses the SwiftUI `App` lifecycle. It defines a `Window` scene for the Control Panel and a `MenuBarExtra` scene that provides a persistent menu bar icon. The menu bar offers **Toggle Notch**, **Lock/Unlock Notch**, and **Quit Thinger** actions. Additional controls (clear widgets, control panel access) live inside the gear icon menu within the expanded notch.
 2.  **Hybrid Architecture**: While SwiftUI handles the UI, the app attaches an `AppDelegate` via `@NSApplicationDelegateAdaptor`. This is crucial because standard SwiftUI windows cannot easily replicate the floating, always-on-top, interaction-pass-through behavior required for a notch utility.
-3.  **Window Configuration**: The `AppDelegate` creates an `NSPanel` with a specific collection of style masks (`.borderless`, `.utilityWindow`, `.hudWindow`, `.nonactivatingPanel`).
+3.  **Window Configuration**: The `AppDelegate` creates a `NotchWindow` (a custom `NSPanel` subclass) with a specific collection of style masks (`.borderless`, `.utilityWindow`, `.hudWindow`, `.nonactivatingPanel`).
     *   **Level**: It sets the window level to `.mainMenu + 3`, ensuring it sits above the system menu bar.
     *   **Style**: It disables the shadow and makes the background clear to allow the custom SwiftUI shapes (`NotchView`) to define the visual boundaries.
     *   **Positioning**: On launch and screen changes, it calculates the physical notch dimensions by inspecting `NSScreen.auxiliaryTopLeftArea` and `auxiliaryTopRightArea`. It positions the window at the exact center top of the screen using `setFrameOrigin`.
@@ -31,7 +31,7 @@ Thinger is a macOS notch utility designed to act as a dynamic shelf and sharing 
 2.  **Dimensions**: Closed dimensions come from `NotchDimensions.shared` (hardware notch). Open dimensions come from `vm.openWidth` / `vm.openHeight` (dynamic, ≥ minimum).
 3.  **Corner Radii**: Closed state uses `0` for both top and bottom corners (flat pill). Open state uses `10` (top) and `20` (bottom) for the characteristic notch curve.
 4.  **Shadow**: A `.shadow(color: .black.opacity(0.5), radius: 20, y: 10)` fades in when the notch opens, giving it depth against the desktop.
-5.  **Top-Edge Locking**: The `ZStack(alignment: .top)` combined with the fixed-frame `NSPanel` ensures the top edge stays pinned. All growth happens downward.
+5.  **Top-Edge Locking**: The `ZStack(alignment: .top)` combined with the fixed-frame `NotchWindow` ensures the top edge stays pinned. All growth happens downward.
 6.  **Content Visibility**: Content is conditionally shown with `if isOpen` and a `.transition(.opacity)` so it fades in as the notch expands.
 7.  **Hover Logic**: `.onHover` calls `vm.handleHover(_:)`. Opening is immediate; closing uses a 300ms grace period checking for active drag targeting and sharing sessions.
 
@@ -141,7 +141,7 @@ title: Thinger View Hierarchy
 ---
 graph TD
     App[ThingerApp] -->|Attached| Deleg[AppDelegate]
-    Deleg -->|Manages| Win["NSPanel (Transparent Window)"]
+    Deleg -->|Manages| Win["NotchWindow (Transparent Window)"]
     Win -->|Root View| Notch[NotchView]
     
     subgraph Notch State
@@ -195,7 +195,7 @@ When the mouse enters the notch area, SwiftUI fires `.onHover(true)`. The `handl
 2. Sets `isHovering = true`.
 3. Cancels any pending close timer (`hoverTask?.cancel()`) to prevent a race condition.
 4. Calls `vm.open()`, which sets `notchState = .open` and fires the `onStateChange` callback.
-5. The callback reaches `AppDelegate.handleNotchStateChange(_:)`, which animates the `NSPanel` from its closed size (≈200×32) to its open size (500×180) with a 0.25s ease-in-out animation.
+5. The callback reaches `AppDelegate.handleNotchStateChange(_:)`, which animates the `NotchWindow` from its closed size (≈200×32) to its open size (500×180) with a 0.25s ease-in-out animation.
 
 #### Closing (300ms Grace Period)
 When the mouse exits, `.onHover(false)` fires. The `handleHover` function:
@@ -292,7 +292,7 @@ The notch is frozen in whatever state it was in when the lock was enabled. The u
 
 **Where it lives:** `AppDelegate.setupNotchWindow()` and `positionWindow(_:on:)`.
 
-The `NSPanel` is set to a **fixed max-size frame** (500×180) at all times. It never resizes during animation. All visual transitions are handled purely by SwiftUI's `matchedGeometryEffect` inside the fixed frame.
+The `NotchWindow` is set to a **fixed max-size frame** (500×180) at all times. It never resizes during animation. All visual transitions are handled purely by SwiftUI's `matchedGeometryEffect` inside the fixed frame.
 
 This eliminates any risk of the top edge shifting during animation. The window's top edge is pinned at `screenFrame.maxY - 180`, and SwiftUI grows the notch shape downward within the fixed frame via the `ZStack(alignment: .top)` layout.
 
@@ -351,7 +351,7 @@ sequenceDiagram
     DragDetector->>ViewModel: globalDragTargeting = true
     DragDetector->>ViewModel: open()
     ViewModel->>AppDelegate: onStateChange(.open)
-    AppDelegate->>AppDelegate: Animate NSPanel to 500×180
+    AppDelegate->>AppDelegate: Animate NotchWindow to 500×180
     
     User->>Widget: Drag over Shelf widget
     Widget->>ViewModel: reportTargetingChange(true)
@@ -373,7 +373,7 @@ sequenceDiagram
     View->>View: handleHover(false) → 300ms timer starts
     View->>ViewModel: close()
     ViewModel->>AppDelegate: onStateChange(.closed)
-    AppDelegate->>AppDelegate: Animate NSPanel to closed size
+    AppDelegate->>AppDelegate: Animate NotchWindow to closed size
 ```
 
 ---

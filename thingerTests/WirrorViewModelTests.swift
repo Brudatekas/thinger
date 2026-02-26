@@ -85,7 +85,7 @@ struct WirrorViewModelTests {
         
         // The state should be logically consistent. 
         // AVCaptureSession's actual running state should match the VM's published state.
-        #expect(vm.isRunning == vm.captureSession.isRunning, "Published isRunning state desynced from actual AVCaptureSession state")
+        #expect(vm.isRunning == (vm.captureSession?.isRunning ?? false), "Published isRunning state desynced from actual AVCaptureSession state")
     }
     
     @Test("Calling startSession while already running should be a safe no-op")
@@ -95,7 +95,7 @@ struct WirrorViewModelTests {
         
         vm.startSession()
         try await Task.sleep(nanoseconds: 100_000_000)
-        let initialTaskCount = vm.captureSession.inputs.count // Keep track of configured inputs
+        let initialTaskCount = vm.captureSession?.inputs.count ?? 0 // Keep track of configured inputs
         
         // Call it 10 more times
         for _ in 0..<10 {
@@ -105,7 +105,7 @@ struct WirrorViewModelTests {
         try await Task.sleep(nanoseconds: 100_000_000)
         
         // Should not have duplicated inputs or crashed
-        #expect(vm.captureSession.inputs.count == initialTaskCount, "Multiple start calls should not re-add inputs")
+        #expect((vm.captureSession?.inputs.count ?? 0) == initialTaskCount, "Multiple start calls should not re-add inputs")
     }
     
     @Test("Calling stopSession while already stopped should be a safe no-op")
@@ -113,7 +113,7 @@ struct WirrorViewModelTests {
         let vm = makeCleanVM()
         
         #expect(vm.isRunning == false)
-        #expect(vm.captureSession.isRunning == false)
+        #expect((vm.captureSession?.isRunning ?? false) == false)
         
         // Call it repeatedly
         for _ in 0..<10 {
@@ -123,7 +123,7 @@ struct WirrorViewModelTests {
         try await Task.sleep(nanoseconds: 50_000_000)
         
         #expect(vm.isRunning == false)
-        #expect(vm.captureSession.isRunning == false)
+        #expect((vm.captureSession?.isRunning ?? false) == false)
     }
     
     // MARK: - State Integrity

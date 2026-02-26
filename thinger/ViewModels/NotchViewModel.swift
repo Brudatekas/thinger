@@ -33,9 +33,28 @@ enum NotchTab: String, CaseIterable {
 class NotchViewModel: ObservableObject {
 
     // MARK: - Tab State
+    
+    init() {
+        if let tabRaw = UserDefaults.standard.string(forKey: "notch.activeTab"),
+           let tab = NotchTab(rawValue: tabRaw) {
+            self.activeNotchTab = tab
+        } else {
+            self.activeNotchTab = .shelf
+        }
+
+        // Combine drop zone targeting from multiple sources
+        Publishers.CombineLatest($globalDragTargeting, $activeTargetCount)
+            .map { global, count in global || count > 0 }
+            .assign(to: \.anyDropZoneTargeting, on: self)
+            .store(in: &cancellables)
+        
+
+    }
 
     /// The currently active tab in the expanded notch.
-    @Published var activeNotchTab: NotchTab = .shelf
+    @Published var activeNotchTab: NotchTab {
+        didSet { UserDefaults.standard.set(activeNotchTab.rawValue, forKey: "notch.activeTab") }
+    }
 
     // MARK: - Teleprompter
 
@@ -101,7 +120,17 @@ class NotchViewModel: ObservableObject {
     // MARK: - Notch State
 
     @Published private(set) var notchState: NotchState = .closed
-    @AppStorage("notchLocked") var isLocked: Bool = false
+    @Published var isLocked: Bool = false
+    
+    /// Toggles whether the notch pushes down to reveal the underlying menu bar
+    /// with a translucent interactive cutout mask.
+    @Published var isMenuBarRevealed: Bool = false
+    
+    /// The global screen coordinates of the mouse, used to move the translucent cut-out.
+    @Published var globalMouseLocation: CGPoint = .zero
+
+    @Published var mouseMonitor: Any?
+    @Published var localMouseMonitor: Any?
 
     /// Callback when notch state changes (used by AppDelegate for window resize)
     var onStateChange: ((NotchState) -> Void)?
@@ -114,7 +143,38 @@ class NotchViewModel: ObservableObject {
     @Published var dropEvent: Bool = false
 
     private var dragDebounceTask: Task<Void, Never>?
+    
+    func toggleMenuBarRevealed() {
+        isMenuBarRevealed.toggle()
+        
+        if isMenuBarRevealed {
+            startMonitoring()
+        } else {
+            stopMonitoring()
+        }
+    }
 
+    private func startMonitoring() {
+        // 1. Global Monitor (Events outside your app)
+        mouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] _ in
+            self?.globalMouseLocation = NSEvent.mouseLocation
+        }
+        
+        // 2. Local Monitor (Events inside your app)
+        localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
+            self?.globalMouseLocation = NSEvent.mouseLocation
+            return event
+        }
+    }
+
+    private func stopMonitoring() {
+        // Use a small helper or iterate to ensure cleanup
+        [mouseMonitor, localMouseMonitor].compactMap { $0 }.forEach { NSEvent.removeMonitor($0) }
+        
+        // Crucial: Clear the references so they don't hold 'dead' monitors
+        mouseMonitor = nil
+        localMouseMonitor = nil
+    }
     func updateGlobalDragTargeting(_ targeted: Bool) {
         dragDebounceTask?.cancel()
         if targeted {
@@ -161,14 +221,6 @@ class NotchViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init
-
-    init() {
-        // Combine drop zone targeting from multiple sources
-        Publishers.CombineLatest($globalDragTargeting, $activeTargetCount)
-            .map { global, count in global || count > 0 }
-            .assign(to: \.anyDropZoneTargeting, on: self)
-            .store(in: &cancellables)
-    }
 
     // MARK: - State Control
 

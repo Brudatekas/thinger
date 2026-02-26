@@ -35,9 +35,7 @@ struct WirrorView: View {
 
     @EnvironmentObject var vm: NotchViewModel
 
-    private var wvm: WirrorViewModel {
-        vm.wirrorVM
-    }
+    @EnvironmentObject var wvm: WirrorViewModel
 
     var body: some View {
         ZStack {
@@ -126,11 +124,16 @@ struct WirrorView: View {
     private var cameraContent: some View {
         ZStack {
             // Live camera preview
-            CameraPreviewView(
-                session: wvm.captureSession,
-                isMirrored: wvm.isMirrored
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            if let session = wvm.captureSession {
+                CameraPreviewView(
+                    session: session,
+                    isMirrored: wvm.isMirrored
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            } else {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.8))
+            }
 
             // Brightness overlay
             if wvm.brightnessOverlay > 0 {

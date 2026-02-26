@@ -97,7 +97,7 @@ class WirrorViewModel: ObservableObject {
     // MARK: - AVFoundation
 
     /// The capture session driving the camera preview.
-    nonisolated let captureSession = AVCaptureSession()
+    @Published var captureSession: AVCaptureSession?
 
     /// The currently active video input device.
     private var videoInput: AVCaptureDeviceInput?
@@ -152,28 +152,39 @@ class WirrorViewModel: ObservableObject {
 
     /// A background actor used to serialize blocking start/stop calls.
     private actor SessionController {
-        let session: AVCaptureSession
-        init(session: AVCaptureSession) { self.session = session }
+        var session: AVCaptureSession?
+        func setSession(_ newSession: AVCaptureSession?) {
+            self.session = newSession
+        }
         func start() {
-            if !session.isRunning { session.startRunning() }
+            if let session = session, !session.isRunning { session.startRunning() }
         }
         func stop() {
-            if session.isRunning { session.stopRunning() }
+            if let session = session, session.isRunning { session.stopRunning() }
         }
     }
-    private lazy var sessionController = SessionController(session: captureSession)
+    private let sessionController = SessionController()
 
     /// Configures the capture session with the default video device.
     private func configureSession() {
-        guard captureSession.inputs.isEmpty else { return }
+        if captureSession == nil {
+            let newSession = AVCaptureSession()
+            captureSession = newSession
+            Task {
+                await sessionController.setSession(newSession)
+            }
+        }
+        
+        guard let session = captureSession else { return }
+        guard session.inputs.isEmpty else { return }
 
-        captureSession.beginConfiguration()
-        captureSession.sessionPreset = .medium
+        session.beginConfiguration()
+        session.sessionPreset = .medium
 
         // Find the default camera
         guard let device = AVCaptureDevice.default(for: .video) else {
             errorMessage = "No camera found"
-            captureSession.commitConfiguration()
+            session.commitConfiguration()
             return
         }
 
@@ -181,8 +192,8 @@ class WirrorViewModel: ObservableObject {
 
         do {
             let input = try AVCaptureDeviceInput(device: device)
-            if captureSession.canAddInput(input) {
-                captureSession.addInput(input)
+            if session.canAddInput(input) {
+                session.addInput(input)
                 videoInput = input
             } else {
                 errorMessage = "Cannot add camera input"
@@ -191,7 +202,7 @@ class WirrorViewModel: ObservableObject {
             errorMessage = "Camera error: \(error.localizedDescription)"
         }
 
-        captureSession.commitConfiguration()
+        session.commitConfiguration()
     }
 
     /// Starts the camera capture session on a background thread.
@@ -203,7 +214,7 @@ class WirrorViewModel: ObservableObject {
             return
         }
 
-        if captureSession.inputs.isEmpty {
+        if captureSession == nil || captureSession?.inputs.isEmpty == true {
             configureSession()
         }
 
@@ -217,6 +228,10 @@ class WirrorViewModel: ObservableObject {
     func stopSession() {
         Task {
             await sessionController.stop()
+            await sessionController.setSession(nil)
+            self.captureSession = nil
+            self.videoInput = nil
+            self.videoDevice = nil
             self.isRunning = false
         }
     }

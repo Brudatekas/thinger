@@ -49,28 +49,36 @@ struct ThingerApp: App {
 
         // Menu Bar Icon
         MenuBarExtra("Thinger", systemImage: "rectangle.topthird.inset.filled") {
-            Button {
-                appDelegate.viewModel.toggle()
-            } label: {
-                Label("Toggle Notch", systemImage: "rectangle.topthird.inset.filled")
-            }
+            MenuBarMenuView(vm: appDelegate.viewModel)
+        }
+    }
+}
 
-            Button {
-                appDelegate.viewModel.toggleLock()
-            } label: {
-                Label(appDelegate.viewModel.isLocked
-                      ? "Unlock Notch"
-                      : (appDelegate.viewModel.notchState == .open ? "Lock Open" : "Lock Closed"),
-                      systemImage: appDelegate.viewModel.isLocked ? "lock.open" : "lock.fill")
-            }
+struct MenuBarMenuView: View {
+    @ObservedObject var vm: NotchViewModel
 
-            Divider()
+    var body: some View {
+        Button {
+            vm.toggle()
+        } label: {
+            Label("Toggle Notch", systemImage: "rectangle.topthird.inset.filled")
+        }
 
-            Button {
-                NSApplication.shared.terminate(nil)
-            } label: {
-                Label("Quit Thinger", systemImage: "power")
-            }
+        Button {
+            vm.toggleLock()
+        } label: {
+            Label(vm.isLocked
+                  ? "Unlock Notch"
+                  : (vm.notchState == .open ? "Lock Open" : "Lock Closed"),
+                  systemImage: vm.isLocked ? "lock.open" : "lock.fill")
+        }
+
+        Divider()
+
+        Button {
+            NSApplication.shared.terminate(nil)
+        } label: {
+            Label("Quit Thinger", systemImage: "power")
         }
     }
 }
@@ -81,8 +89,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // MARK: - Properties
     
-    /// The main notch window
-    var window: NSPanel?
+    /// The main notch window class `NotchWindow`
+    var window: NotchWindow?
     
     /// View model for notch state
     var viewModel = NotchViewModel()
@@ -152,35 +160,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             .environmentObject(viewModel)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         
-        // Create panel with Boring Notch's exact style mask
-        let styleMask: NSWindow.StyleMask = [.borderless, .nonactivatingPanel, .utilityWindow, .hudWindow]
-        
-        // Use the maximum (open) size for the window frame.
+        // Create the custom notch window with its exact style mask and behavior encapsulated
         // The window stays at this fixed size at all times.
         // SwiftUI handles all visual animation via matchedGeometryEffect internally.
-        let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: viewModel.openSize.width, height: viewModel.openSize.height),
-            styleMask: styleMask,
-            backing: .buffered,
-            defer: false
-        )
-        
-        // Configure panel appearance - matching BoringNotchSkyLightWindow
-        panel.isFloatingPanel = true
-        panel.isOpaque = false
-        panel.titleVisibility = .hidden
-        panel.titlebarAppearsTransparent = true
-        panel.backgroundColor = .clear
-        panel.isMovable = false
-        panel.level = .mainMenu + 3  // Above menu bar to overlay notch
-        panel.hasShadow = false
-        panel.isReleasedWhenClosed = false
-        panel.collectionBehavior = [.fullScreenAuxiliary, .stationary, .canJoinAllSpaces, .ignoresCycle]
-        panel.hidesOnDeactivate = false
-        panel.isMovableByWindowBackground = false
-        
-        // Set SwiftUI content
-        panel.contentView = NSHostingView(rootView: contentView)
+        let panel = NotchWindow(openSize: viewModel.openSize, contentView: contentView)
         
         // Position at top center using setFrameOrigin (like Boring Notch)
         positionWindow(panel, on: screen)

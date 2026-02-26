@@ -114,11 +114,25 @@ struct NotchView: View {
         isOpen ? vm.openHeight : closedHeight
     }
 
+    /// The mouse location converted to local NotchView coordinates.
+    private var localMouseLocation: CGPoint {
+        if let screen = NSScreen.main {
+            let windowX = screen.frame.midX - vm.openWidth / 2
+            let mouseX = vm.globalMouseLocation.x
+            let mouseY = vm.globalMouseLocation.y
+            
+            return CGPoint(
+                x: mouseX - windowX,
+                y: screen.frame.maxY - mouseY
+            )
+        }
+        return .zero
+    }
 
     // MARK: - Body
 
     var body: some View {
-        ZStack() {
+        ZStack {
             Color.black
             ZStack {
                 // Content fades in only when open
@@ -154,7 +168,29 @@ struct NotchView: View {
             topCornerRadius: currentTopRadius,
             bottomCornerRadius: currentBottomRadius
         ))
-
+        .mask {
+            VStack(spacing: 0) {
+                if vm.isMenuBarRevealed {
+                    Rectangle()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: closedHeight)
+                        .background(Color.white)
+                        .overlay(alignment: .center) {
+                            Capsule()
+                                .fill(Color.black) // This cuts the hole
+                                .frame(width: 60, height: closedHeight)
+                                .position(CGPoint(x: localMouseLocation.x, y: closedHeight / 2))
+                                .blendMode(.destinationOut)
+                        }
+                        .compositingGroup()
+                }
+                Rectangle()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.white)
+                
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
     }
 
     // MARK: - Expanded Content
@@ -169,6 +205,15 @@ struct NotchView: View {
     /// can distribute themselves horizontally within the shelf.
     private var expandedContent: some View {
         VStack{
+            
+            HStack {
+                // Empty HStack that acts as the bounds for the masking hole
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: vm.isMenuBarRevealed ? closedHeight : 0)
+            .background(
+                Color.black // Match the notch background
+            )
 
             HStack {
                 // Left side — tab picker
@@ -185,6 +230,16 @@ struct NotchView: View {
                     .frame(minWidth: closedWidth)
 
                 // Right side — gear menu
+                
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        vm.toggleMenuBarRevealed()
+                    }
+                } label: {
+                    Image(systemName: "roller.shade.open")
+                }
+                .buttonStyle(.plain)
+                
                 Menu {
                     Button {
                         vm.toggle()
@@ -242,9 +297,11 @@ struct NotchView: View {
             case .teleprompter:
                 TeleprompterView()
                     .environmentObject(vm)
+                    .environmentObject(vm.teleprompterVM)
             case .wirror:
                 WirrorView()
                     .environmentObject(vm)
+                    .environmentObject(vm.wirrorVM)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
