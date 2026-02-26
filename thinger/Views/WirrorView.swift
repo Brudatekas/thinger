@@ -53,7 +53,7 @@ struct WirrorView: View {
             wvm.startSession()
         }
         .onDisappear {
-            wvm.stopSession()
+            wvm.scheduleStop()
         }
     }
 
@@ -122,9 +122,9 @@ struct WirrorView: View {
     private var cameraContent: some View {
         ZStack {
             // Live camera preview
-            if wvm.captureSession != nil {
+            if let session = wvm.captureSession {
                 CameraPreviewView(
-                    previewLayer: wvm.previewLayer,
+                    session: session,
                     isMirrored: wvm.isMirrored
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))

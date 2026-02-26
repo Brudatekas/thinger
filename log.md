@@ -1,3 +1,7 @@
+## 2026-02-27: Delayed Camera Session Stop
+- **Modified** `ViewModels/WirrorViewModel.swift` — Added an `AVCaptureVideoDataOutput` to the `AVCaptureSession` to ensure the camera hardware stays active (green light lit) even when SwiftUI destroys the `AVCaptureVideoPreviewLayer` upon the view disappearing. Implemented a `scheduleStop()` method which delays the actual teardown of the camera session by 5 seconds using an async `Task.sleep`. If the user navigates back to the Wirror tab within those 5 seconds, the `startSession()` method cancels the delayed shutdown, providing a seamless "stay-on" transition between tabs.
+- **Modified** `Views/WirrorView.swift` — Added a `.onDisappear` modifier that calls `wvm.scheduleStop()` rather than immediately killing the camera hardware, enabling the 5-second persistence logic.
+
 ## 2026-02-27: Lazy Initialization of Camera Capture Session
 - **Modified** `ViewModels/WirrorViewModel.swift` — Refactored `captureSession` to be an optional `@Published` variable rather than instantiating it immediately. The `AVCaptureSession` is now only initialized inside `configureSession()`, meaning the camera hardware is no longer pre-warmed or triggered when the application launches; it is solely activated when the Wirror tab is actively clicked and displayed.
 - **Modified** `Views/WirrorView.swift` — Updated `CameraPreviewView` integration to unwrap the now-optional `wvm.captureSession`, showing a placeholder black background when the session is not yet active.
