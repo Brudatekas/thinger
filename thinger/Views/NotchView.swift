@@ -175,6 +175,7 @@ struct NotchView: View {
                 Picker("", selection: $vm.activeNotchTab) {
                     Image(systemName: "tray").tag(NotchTab.shelf)
                     Image(systemName: "text.justify.leading").tag(NotchTab.teleprompter)
+                    Image(systemName: "web.camera").tag(NotchTab.wirror)
                 }
                 .pickerStyle(.segmented)
                 .frame(width: 80)
@@ -240,6 +241,9 @@ struct NotchView: View {
                     .environmentObject(vm)
             case .teleprompter:
                 TeleprompterView()
+                    .environmentObject(vm)
+            case .wirror:
+                WirrorView()
                     .environmentObject(vm)
             }
         }

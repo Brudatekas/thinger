@@ -8,5 +8,7 @@
 	<array>
 		<dict/>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Wirror needs camera access to display the webcam feed in the notch.</string>
 </dict>
 </plist>

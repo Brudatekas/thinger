@@ -38,9 +38,19 @@ help: ## Show this help message
 # Build Targets
 # ==============================================================================
 
-.PHONY: build-run build run clean
+.PHONY: build-run build build-docs run clean
 
 build-run: build run ## Build and run the application
+
+build-docs: ## Build the documentation (DocC)
+	@echo "📚 Building $(PROJECT_NAME) documentation..."
+	set -o pipefail && xcodebuild docbuild \
+		-project $(PROJECT_NAME).xcodeproj \
+		-scheme $(SCHEME_NAME) \
+		-derivedDataPath $(BUILD_DIR)/docs \
+		CODE_SIGNING_ALLOWED="NO" CODE_SIGNING_REQUIRED="NO" \
+		| $(XCBEAUTIFY)
+	@echo "✅ Documentation build complete! Available at: $(BUILD_DIR)/docs/Build/Products/$(CONFIGURATION)/$(PROJECT_NAME).doccarchive"
 
 build: ## Build the application
 	@echo "🔨 Building $(PROJECT_NAME)..."

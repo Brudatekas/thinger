@@ -1,3 +1,17 @@
+## 2026-02-26: Added Wirror (Webcam Mirror) Feature & Fixed Camera Crash
+- **Created** `ViewModels/WirrorViewModel.swift` — `@MainActor ObservableObject` with `AVCaptureSession` managing the camera feed, authorization states, mirroring, zoom, and brightness.
+- **Created** `Views/CameraPreviewView.swift` — `NSViewRepresentable` bridge embedding `AVCaptureVideoPreviewLayer`.
+- **Created** `Views/WirrorView.swift` — notch UI displaying camera preview, permission prompts, and overlay controls for mirroring, zoom, and brightness.
+- **Modified** `Info.plist` — added `NSCameraUsageDescription` to properly request camera permission and fix the app crash.
+- **Modified** `ViewModels/NotchViewModel.swift` — registered `.wirror` as a `NotchTab` and instantiated `wirrorVM`.
+- **Created** `thingerTests/WirrorViewModelTests.swift` — aggressive, boundary-breaking tests logic including initialization, persistence, `resetToDefaults()`, parameter clamping, concurrency (stress testing detached tasks), and state integrity.
+- **Updated** `DOCUMENTATION.md` and `log.md` with the latest changes.
+
+## 2026-02-26: Added Build Documentation Workflow
+- **Added** `build-docs` target to `Makefile` to generate Swift-DocC documentation via `xcodebuild docbuild`.
+- **Created** `.agent/workflows/build-docs.md` workflow for building and accessing the DocC documentation catalog.
+- **Updated** `DOCUMENTATION.md` to reflect the new workflow options under Chapter 11.3.
+
 ## 2026-02-25: Restored MenuBarExtra
 - **Modified** `thingerApp.swift` — re-added `MenuBarExtra` scene with a system icon (`rectangle.topthird.inset.filled`). Provides **Toggle Notch**, **Lock/Unlock Notch**, and **Quit Thinger** actions directly from the menu bar, ensuring the app is always accessible even if notch hover interaction fails.
 - **Updated** `DOCUMENTATION.md` — Chapter 2.1 updated to reflect the restored menu bar icon.

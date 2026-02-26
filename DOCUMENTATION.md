@@ -430,10 +430,17 @@ Every source file in `Views/` has been annotated with comprehensive `///` DocC c
 
 ### 11.3 Building Documentation
 
-To generate and view the DocC documentation:
+To generate and view the DocC documentation, you can use either Xcode or the provided workflow:
+
+**Option 1: Xcode**
 1. Open the project in Xcode.
 2. Select **Product → Build Documentation** (⌃⇧⌘D).
 3. The documentation appears in the Developer Documentation window.
+
+**Option 2: Terminal / Workflow**
+1. Run the `make build-docs` command in your terminal.
+2. Open the generated archive at `build/docs/Build/Products/Debug/thinger.doccarchive`.
+Alternatively, you can trigger the `/build-docs` workflow.
 
 ---
 

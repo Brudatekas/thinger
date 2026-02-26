@@ -24,6 +24,7 @@ enum NotchState: Equatable {
 enum NotchTab: String, CaseIterable {
     case shelf
     case teleprompter
+    case wirror
 }
 
 // MARK: - NotchViewModel
@@ -40,6 +41,9 @@ class NotchViewModel: ObservableObject {
 
     /// Shared teleprompter view model.
     let teleprompterVM = TeleprompterViewModel()
+
+    /// Shared wirror (webcam mirror) view model.
+    let wirrorVM = WirrorViewModel()
 
     // MARK: - Open Dimensions
 
