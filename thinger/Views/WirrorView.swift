@@ -122,9 +122,9 @@ struct WirrorView: View {
     private var cameraContent: some View {
         ZStack {
             // Live camera preview
-            if let session = wvm.captureSession {
+            if wvm.captureSession != nil {
                 CameraPreviewView(
-                    session: session,
+                    previewLayer: wvm.previewLayer,
                     isMirrored: wvm.isMirrored
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 12))

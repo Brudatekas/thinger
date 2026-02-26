@@ -99,6 +99,9 @@ class WirrorViewModel: ObservableObject {
     /// The capture session driving the camera preview.
     @Published var captureSession: AVCaptureSession?
 
+    /// The persistent preview layer.
+    let previewLayer: AVCaptureVideoPreviewLayer
+
     /// The currently active video input device.
     private var videoInput: AVCaptureDeviceInput?
 
@@ -108,6 +111,8 @@ class WirrorViewModel: ObservableObject {
     // MARK: - Init
 
     init() {
+        self.previewLayer = AVCaptureVideoPreviewLayer()
+        self.previewLayer.videoGravity = .resizeAspectFill
         self.isMirrored = UserDefaults.standard.object(forKey: "wirror.isMirrored") as? Bool ?? true
         self.zoomLevel = UserDefaults.standard.object(forKey: "wirror.zoomLevel") as? Double ?? 1.0
         self.brightnessOverlay = UserDefaults.standard.object(forKey: "wirror.brightnessOverlay") as? Double ?? 0.0
@@ -170,6 +175,7 @@ class WirrorViewModel: ObservableObject {
         if captureSession == nil {
             let newSession = AVCaptureSession()
             captureSession = newSession
+            previewLayer.session = newSession
             Task {
                 await sessionController.setSession(newSession)
             }
@@ -229,10 +235,6 @@ class WirrorViewModel: ObservableObject {
     func stopSession() {
         Task {
             await sessionController.stop()
-            await sessionController.setSession(nil)
-            self.captureSession = nil
-            self.videoInput = nil
-            self.videoDevice = nil
             self.isRunning = false
         }
     }

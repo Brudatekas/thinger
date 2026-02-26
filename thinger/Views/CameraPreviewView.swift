@@ -26,39 +26,34 @@ import AVFoundation
 /// natural mirror effect.
 struct CameraPreviewView: NSViewRepresentable {
 
-    /// The capture session to display.
-    let session: AVCaptureSession
+    /// The persistent preview layer to display.
+    let previewLayer: AVCaptureVideoPreviewLayer
 
     /// Whether the preview should be horizontally flipped.
     let isMirrored: Bool
 
-    /// Creates the underlying `NSView` with an embedded preview layer.
+    /// Creates the underlying `NSView` and attaches the persistent preview layer.
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         view.wantsLayer = true
 
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        previewLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-
         // Apply mirror if needed
         if let connection = previewLayer.connection, connection.isVideoMirroringSupported {
             connection.automaticallyAdjustsVideoMirroring = false
+            // Check if connection requires mirrored state
             connection.isVideoMirrored = isMirrored
         }
 
         view.layer?.addSublayer(previewLayer)
-        context.coordinator.previewLayer = previewLayer
-
+        
         return view
     }
 
     /// Updates the preview layer when SwiftUI state changes.
     func updateNSView(_ nsView: NSView, context: Context) {
-        guard let previewLayer = context.coordinator.previewLayer else { return }
-
         // Update frame to match view bounds
         CATransaction.begin()
+        // Disable actions so resizing window doesn't animate lag
         CATransaction.setDisableActions(true)
         previewLayer.frame = nsView.bounds
         CATransaction.commit()
@@ -69,12 +64,13 @@ struct CameraPreviewView: NSViewRepresentable {
             connection.isVideoMirrored = isMirrored
         }
     }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-
-    class Coordinator {
-        var previewLayer: AVCaptureVideoPreviewLayer?
+    
+    // Safely unbind from the nsView so the layer can be re-bound later
+    static func dismantleNSView(_ nsView: NSView, coordinator: ()) {
+        if let sublayers = nsView.layer?.sublayers {
+            for layer in sublayers where layer is AVCaptureVideoPreviewLayer {
+                layer.removeFromSuperlayer()
+            }
+        }
     }
 }
