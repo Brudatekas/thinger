@@ -56,6 +56,8 @@ struct ThingerApp: App {
 
 struct MenuBarMenuView: View {
     @ObservedObject var vm: NotchViewModel
+    
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Button {
@@ -79,6 +81,16 @@ struct MenuBarMenuView: View {
             NSApplication.shared.terminate(nil)
         } label: {
             Label("Quit Thinger", systemImage: "power")
+        }
+        
+        Divider()
+        
+        Button {
+            openWindow(id: "control-panel")
+            NSApp.setActivationPolicy(.regular)
+            NSApp.activate(ignoringOtherApps: true)
+        } label: {
+            Label("Control Panel", systemImage: "slider.horizontal.3")
         }
     }
 }

@@ -57,10 +57,20 @@ struct WidgetShelf: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            // AirDrop Target Location
-            AirDropWidgetView()
-                .environmentObject(vm)
-                .transition(.scale.combined(with: .opacity))
+            if vm.globalDragTargeting {
+                // When dragging, show dynamic share widgets for dragged items
+                // Only show a handful if there are many to not clutter the notch width
+                ForEach(Array(vm.activeShareServices.prefix(3)), id: \.title) { service in
+                    ShareServiceWidgetView(service: service)
+                        .environmentObject(vm)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            } else {
+                // Default static AirDrop when not dragging
+                AirDropWidgetView()
+                    .environmentObject(vm)
+                    .transition(.scale.combined(with: .opacity))
+            }
                 
             // Existing batches
             ForEach(Array(vm.batches.enumerated()), id: \.element.id) { _, batch in

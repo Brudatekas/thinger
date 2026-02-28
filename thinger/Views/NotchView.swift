@@ -217,76 +217,82 @@ struct NotchView: View {
 
             HStack {
                 // Left side — tab picker
-                Picker("", selection: $vm.activeNotchTab) {
-                    Image(systemName: "tray").tag(NotchTab.shelf)
-                    Image(systemName: "text.justify.leading").tag(NotchTab.teleprompter)
-                    Image(systemName: "web.camera").tag(NotchTab.wirror)
+                if !vm.globalDragTargeting {
+                    Picker("", selection: $vm.activeNotchTab) {
+                        Image(systemName: "tray").tag(NotchTab.shelf)
+                        Image(systemName: "text.justify.leading").tag(NotchTab.teleprompter)
+                        Image(systemName: "web.camera").tag(NotchTab.wirror)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 80)
+                    .colorMultiply(.white)
+                    .transition(.opacity)
                 }
-                .pickerStyle(.segmented)
-                .frame(width: 80)
-                .colorMultiply(.white)
 
                 Spacer()
                     .frame(minWidth: closedWidth)
 
                 // Right side — gear menu
-                
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                        vm.toggleMenuBarRevealed()
+                if !vm.globalDragTargeting {
+                    Button {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            vm.toggleMenuBarRevealed()
+                        }
+                    } label: {
+                        Image(systemName: "roller.shade.open")
                     }
-                } label: {
-                    Image(systemName: "roller.shade.open")
+                    .buttonStyle(.plain)
+                    .transition(.opacity)
+                    
+                    Menu {
+                        Button {
+                            vm.toggle()
+                        } label: {
+                            Label("Toggle Notch", systemImage: "rectangle.topthird.inset.filled")
+                        }
+    
+                        Button {
+                            vm.toggleLock()
+                        } label: {
+                            Label(vm.isLocked
+                                  ? "Unlock Notch"
+                                  : (vm.notchState == .open ? "Lock Open" : "Lock Closed"),
+                                  systemImage: vm.isLocked ? "lock.open" : "lock.fill")
+                        }
+    
+                        Divider()
+    
+                        Button {
+                            vm.clearAllBatches()
+                        } label: {
+                            Label("Clear All Widgets", systemImage: "trash")
+                        }
+    
+                        Divider()
+    
+                        Button {
+                            openWindow(id: "control-panel")
+                            NSApp.setActivationPolicy(.regular)
+                            NSApp.activate(ignoringOtherApps: true)
+                        } label: {
+                            Label("Control Panel", systemImage: "slider.horizontal.3")
+                        }
+    
+                        Divider()
+    
+                        Button {
+                            NSApplication.shared.terminate(nil)
+                        } label: {
+                            Label("Quit Thinger", systemImage: "power")
+                        }
+                    } label: {
+                        Image(systemName: "gear")
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                    .menuStyle(.borderlessButton)
+                    .frame(width: 16, height: 16)
+                    .transition(.opacity)
                 }
-                .buttonStyle(.plain)
-                
-                Menu {
-                    Button {
-                        vm.toggle()
-                    } label: {
-                        Label("Toggle Notch", systemImage: "rectangle.topthird.inset.filled")
-                    }
-
-                    Button {
-                        vm.toggleLock()
-                    } label: {
-                        Label(vm.isLocked
-                              ? "Unlock Notch"
-                              : (vm.notchState == .open ? "Lock Open" : "Lock Closed"),
-                              systemImage: vm.isLocked ? "lock.open" : "lock.fill")
-                    }
-
-                    Divider()
-
-                    Button {
-                        vm.clearAllBatches()
-                    } label: {
-                        Label("Clear All Widgets", systemImage: "trash")
-                    }
-
-                    Divider()
-
-                    Button {
-                        openWindow(id: "control-panel")
-                        NSApp.setActivationPolicy(.regular)
-                        NSApp.activate(ignoringOtherApps: true)
-                    } label: {
-                        Label("Control Panel", systemImage: "slider.horizontal.3")
-                    }
-
-                    Divider()
-
-                    Button {
-                        NSApplication.shared.terminate(nil)
-                    } label: {
-                        Label("Quit Thinger", systemImage: "power")
-                    }
-                } label: {
-                    Image(systemName: "gear")
-                        .foregroundStyle(.white.opacity(0.7))
-                }
-                .menuStyle(.borderlessButton)
-                .frame(width: 16, height: 16)
             }
             .ignoresSafeArea()
 

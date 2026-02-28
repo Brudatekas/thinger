@@ -141,8 +141,12 @@ class NotchViewModel: ObservableObject {
     @Published var activeTargetCount: Int = 0
     @Published var anyDropZoneTargeting: Bool = false
     @Published var dropEvent: Bool = false
+    
+    /// Dynamically populated array of sharing services that accept the currently dragged items.
+    @Published var activeShareServices: [NSSharingService] = []
 
     private var dragDebounceTask: Task<Void, Never>?
+    private var shareServiceDiscoveryTask: Task<Void, Never>?
     
     func toggleMenuBarRevealed() {
         isMenuBarRevealed.toggle()
@@ -177,17 +181,52 @@ class NotchViewModel: ObservableObject {
     }
     func updateGlobalDragTargeting(_ targeted: Bool) {
         dragDebounceTask?.cancel()
+        shareServiceDiscoveryTask?.cancel()
+        
         if targeted {
             globalDragTargeting = true
             // Auto-switch to shelf tab when files are dragged toward the notch
             if activeNotchTab != .shelf {
                 activeNotchTab = .shelf
             }
+            
+            // Discover sharing services for dragged items
+            shareServiceDiscoveryTask = Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                // Briefly yield so we don't block the initial drag target animation
+                try? await Task.sleep(for: .milliseconds(50))
+                guard !Task.isCancelled else { return }
+                
+                let pasteboard = NSPasteboard(name: .drag)
+                var draggedURLs: [URL]? = nil
+                
+                // Try reading URLs directly
+                if let urls = pasteboard.readObjects(forClasses: [NSURL.self], options: nil) as? [URL] {
+                    draggedURLs = urls
+                } else if let types = pasteboard.types, types.contains(.fileURL) {
+                    // Fallback to checking file types manually if needed
+                    draggedURLs = pasteboard.pasteboardItems?.compactMap { item -> URL? in
+                        guard let string = item.string(forType: .fileURL) else { return nil }
+                        return URL(string: string)
+                    }
+                }
+                
+                if let urls = draggedURLs, !urls.isEmpty {
+                    // Get all sharing services for these items
+                    let services = NSSharingService.sharingServices(forItems: urls)
+                    // Filter out duplicate identical titles or generic items if we want, or limit list. 
+                    // Showing a handful of primary ones is good.
+                    self.activeShareServices = services
+                } else {
+                    self.activeShareServices = []
+                }
+            }
         } else {
             dragDebounceTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(NotchConfiguration.shared.dragDebounceDelay))
                 guard !Task.isCancelled else { return }
                 self?.globalDragTargeting = false
+                self?.activeShareServices = []
             }
         }
     }
@@ -276,14 +315,29 @@ class NotchViewModel: ObservableObject {
     func unlockNotch() { isLocked = false }
     func toggleLock() { isLocked.toggle() }
 
-    // MARK: - AirDrop Sharing
+    // MARK: - Sharing Logic
+    
+    /// Shares the given items using the specified service.
+    @MainActor
+    func shareItems(items: [Any], service: NSSharingService, from view: NSView? = nil) {
+        if service.canPerform(withItems: items) {
+            service.perform(withItems: items)
+        } else {
+            // Fallback sheet
+            let picker = NSSharingServicePicker(items: items)
+            if let view = view {
+                picker.show(relativeTo: .zero, of: view, preferredEdge: .minY)
+            }
+        }
+    }
 
     @MainActor
     func shareToAirDrop(items: [Any], from view: NSView? = nil) {
         let service = NSSharingService(named: .sendViaAirDrop) ?? NSSharingService.sharingServices(forItems: items).first(where: { $0.title == "AirDrop" })
-        if let service = service, service.canPerform(withItems: items) {
-            service.perform(withItems: items)
+        if let service = service {
+            shareItems(items: items, service: service, from: view)
         } else {
+            // Fallback sheet
             let picker = NSSharingServicePicker(items: items)
             if let view = view {
                 picker.show(relativeTo: .zero, of: view, preferredEdge: .minY)
@@ -304,7 +358,22 @@ class NotchViewModel: ObservableObject {
         }
     }
 
+    func handleServiceDrop(providers: [NSItemProvider], service: NSSharingService, from view: NSView? = nil) async {
+        let items = await extractItems(from: providers)
+        await MainActor.run {
+            self.shareItems(items: items, service: service, from: view)
+        }
+    }
+
     func handleAirDropDrop(providers: [NSItemProvider], from view: NSView? = nil) async {
+        let items = await extractItems(from: providers)
+        await MainActor.run {
+            self.shareToAirDrop(items: items, from: view)
+        }
+    }
+    
+    /// Extracts actionable items (URLs or raw providers) from dropping providers.
+    private func extractItems(from providers: [NSItemProvider]) async -> [Any] {
         var items: [Any] = []
         for provider in providers {
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
@@ -330,8 +399,6 @@ class NotchViewModel: ObservableObject {
             items = providers // Fallback to raw providers if url loading fails or it's text
         }
         
-        await MainActor.run {
-            self.shareToAirDrop(items: items, from: view)
-        }
+        return items
     }
 }

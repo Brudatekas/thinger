@@ -426,6 +426,7 @@ Every source file in `Views/` has been annotated with comprehensive `///` DocC c
 - **`PlaceholderDropZone`** (in `WidgetShelf.swift`) — Documents the factory-creation pattern when files are dropped.
 - **`ShelfWidthPreferenceKey`** (in `WidgetShelf.swift`) — Documents the max-reduce strategy and the preference flow diagram.
 - **`WidgetTrayView.swift`** — Documents the synchronous binding strategy for targeting, the dashed-border visual, supported UTTypes, and lists all consumer views.
+- **`ShareServiceWidgetView.swift`** — Documents the dynamic instantiation during drag events and delegation to `NSSharingService`.
 - **`AirDropWidgetView.swift`** — Documents the drop handling pipeline, the disabled tap-to-pick flow, and the connection to `NSSharingService`.
 
 ### 11.3 Building Documentation
