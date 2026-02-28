@@ -123,7 +123,7 @@ struct WidgetTrayView<Content: View>: View {
             .padding(padding)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             .background(
-                ConcentricRectangle(corners: .concentric, isUniform: true)
+                ContainerRelativeShape()
                         .stroke(
                             .white.opacity(isTargeted ? 0.3 : 0.12),
                             style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])

@@ -360,7 +360,7 @@ struct DropZoneView: View {
                 .frame(width: 50)
         }
         .padding(6)
-        .background(RoundedRectangle(cornerRadius: 8).fill(.ultraThinMaterial))
+        .background(ContainerRelativeShape().fill(.ultraThinMaterial))
     }
 }
 
@@ -435,7 +435,7 @@ struct ItemCard: View {
     var body: some View {
         VStack(spacing: 3) {
             ZStack {
-                RoundedRectangle(cornerRadius: compact ? 8 : 10)
+                ContainerRelativeShape()
                     .fill(
                         LinearGradient(
                             colors: [Color.white.opacity(0.12), Color.white.opacity(0.06)],
@@ -444,7 +444,7 @@ struct ItemCard: View {
                         )
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: compact ? 8 : 10)
+                        ContainerRelativeShape()
                             .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
                     )
 

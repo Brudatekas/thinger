@@ -127,15 +127,15 @@ struct WirrorView: View {
                     session: session,
                     isMirrored: wvm.isMirrored
                 )
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(ContainerRelativeShape())
             } else {
-                RoundedRectangle(cornerRadius: 12)
+                ContainerRelativeShape()
                     .fill(Color.black.opacity(0.8))
             }
 
             // Brightness overlay
             if wvm.brightnessOverlay > 0 {
-                RoundedRectangle(cornerRadius: 12)
+                ContainerRelativeShape()
                     .fill(.black.opacity(wvm.brightnessOverlay * 0.8))
                     .allowsHitTesting(false)
             }
@@ -242,7 +242,7 @@ struct WirrorView: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(ContainerRelativeShape())
         )
     }
 }
