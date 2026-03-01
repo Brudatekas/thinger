@@ -158,6 +158,11 @@ final class NotchConfiguration: ObservableObject {
     }
 
     // MARK: - Debug
+    
+    /// Services we should skip when dynamically creating share widgets
+    @Published var disabledShareServices: [String] {
+        didSet { defaults.set(disabledShareServices, forKey: "cfg.disabledShareServices") }
+    }
 
 //    #if DEBUG
     /// Vertical offset for debugging notch positioning. Not persisted across resets.
@@ -204,6 +209,7 @@ final class NotchConfiguration: ObservableObject {
         static let teleprompterSpeed: Double = 50
         static let teleprompterFontSize: Double = 28
         static let teleprompterMirror: Bool = false
+        static let disabledShareServices: [String] = []
     }
 
     // MARK: - Reset
@@ -227,6 +233,7 @@ final class NotchConfiguration: ObservableObject {
         teleprompterSpeed = Defaults.teleprompterSpeed
         teleprompterFontSize = Defaults.teleprompterFontSize
         teleprompterMirror = Defaults.teleprompterMirror
+        disabledShareServices = Defaults.disabledShareServices
     }
 
     // MARK: - Init
@@ -253,5 +260,6 @@ final class NotchConfiguration: ObservableObject {
         self.teleprompterSpeed = defaults.object(forKey: "cfg.teleprompterSpeed") as? Double ?? Defaults.teleprompterSpeed
         self.teleprompterFontSize = defaults.object(forKey: "cfg.teleprompterFontSize") as? Double ?? Defaults.teleprompterFontSize
         self.teleprompterMirror = defaults.object(forKey: "cfg.teleprompterMirror") as? Bool ?? Defaults.teleprompterMirror
+        self.disabledShareServices = defaults.object(forKey: "cfg.disabledShareServices") as? [String] ?? Defaults.disabledShareServices
     }
 }

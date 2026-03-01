@@ -57,7 +57,7 @@ struct WidgetShelf: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if vm.globalDragTargeting {
+            if (vm.globalDragTargeting || vm.anyDropZoneTargeting) && !vm.activeShareServices.isEmpty {
                 // When dragging, show dynamic share widgets for dragged items
                 // Only show a handful if there are many to not clutter the notch width
                 ForEach(Array(vm.activeShareServices.prefix(3)), id: \.title) { service in

@@ -56,6 +56,10 @@ struct ControlPanelView: View {
             TeleprompterSettingsView(tvm: vm.teleprompterVM)
                 .environmentObject(vm)
                 .tabItem { Label("Teleprompter", systemImage: "text.justify.leading") }
+                
+            QuickShareSettingsView()
+                .environmentObject(vm)
+                .tabItem { Label("Quick Share", systemImage: "square.and.arrow.up") }
         }
         .frame(minWidth: 380, idealWidth: 420, minHeight: 500, idealHeight: 700)
     }
@@ -290,7 +294,7 @@ struct ControlPanelView: View {
 // MARK: - SectionCard
 
 /// A visually grouped card with a title, icon, and stacked content.
-private struct SectionCard<Content: View>: View {
+struct SectionCard<Content: View>: View {
     let title: String
     let icon: String
     @ViewBuilder let content: () -> Content

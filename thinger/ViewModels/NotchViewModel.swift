@@ -216,9 +216,11 @@ class NotchViewModel: ObservableObject {
                 if let urls = draggedURLs, !urls.isEmpty {
                     // Get all sharing services for these items
                     let services = NSSharingService.sharingServices(forItems: urls)
-                    // Filter out duplicate identical titles or generic items if we want, or limit list. 
-                    // Showing a handful of primary ones is good.
-                    self.activeShareServices = services
+                    
+                    let disabledSet = Set(NotchConfiguration.shared.disabledShareServices)
+                    let filteredServices = services.filter { !disabledSet.contains($0.title) }
+                    
+                    self.activeShareServices = filteredServices
                 } else {
                     self.activeShareServices = []
                 }
@@ -227,8 +229,11 @@ class NotchViewModel: ObservableObject {
             dragDebounceTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(NotchConfiguration.shared.dragDebounceDelay))
                 guard !Task.isCancelled else { return }
-                self?.globalDragTargeting = false
-                self?.activeShareServices = []
+                guard let self = self else { return }
+                self.globalDragTargeting = false
+                if !self.anyDropZoneTargeting {
+                    self.activeShareServices = []
+                }
             }
         }
     }
@@ -298,13 +303,13 @@ class NotchViewModel: ObservableObject {
         if hovering {
             hoverTask?.cancel()
             open()
-        } else if notchState != .closed && !anyDropZoneTargeting && !preventNotchClose {
+        } else if notchState != .closed && activeTargetCount == 0 && !preventNotchClose {
             hoverTask?.cancel()
             hoverTask = Task { @MainActor [weak self] in
                 try? await Task.sleep(for: .milliseconds(NotchConfiguration.shared.hoverCloseDelay))
                 guard !Task.isCancelled else { return }
                 guard let self else { return }
-                if !self.isHovering && !self.anyDropZoneTargeting {
+                if !self.isHovering && self.activeTargetCount == 0 {
                     self.close()
                 }
             }
