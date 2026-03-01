@@ -111,6 +111,7 @@ struct TeleprompterView: View {
                         .offset(y: -tvm.scrollOffset)
                         .scaleEffect(x: config.teleprompterMirror ? -1 : 1, y: 1)
                 }
+                .allowsHitTesting(false)
                 .frame(width: geo.size.width, height: viewHeight, alignment: .top)
                 .clipped()
                 .mask(

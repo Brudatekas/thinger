@@ -95,8 +95,8 @@ struct WidgetTrayView<Content: View>: View {
     ///   - onDropHandler: Called when items are dropped. Return `true` to accept.
     ///   - content: A `@ViewBuilder` receiving the `isTargeted` boolean.
     init(
-        cornerRadius: CGFloat = 12,
-        padding: CGFloat = 0,
+        cornerRadius: CGFloat = NotchVisualConfig.containerCornerRadius,
+        padding: CGFloat = NotchVisualConfig.widgetTrayPadding,
         onDropHandler: @escaping ([NSItemProvider]) -> Bool,
         @ViewBuilder content: @escaping (_ isTargeted: Bool) -> Content
     ) {
@@ -126,7 +126,7 @@ struct WidgetTrayView<Content: View>: View {
                 ContainerRelativeShape()
                         .stroke(
                             .white.opacity(isTargeted ? 0.3 : 0.12),
-                            style: StrokeStyle(lineWidth: 1.5, dash: [5, 3])
+                            style: StrokeStyle(lineWidth: NotchVisualConfig.borderLineWidth, dash: NotchVisualConfig.borderDashPattern)
                         )
               
                 

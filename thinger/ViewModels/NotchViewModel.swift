@@ -21,7 +21,7 @@ enum NotchState: Equatable {
 // MARK: - NotchTab
 
 /// The tabs available in the expanded notch content area.
-enum NotchTab: String, CaseIterable {
+enum NotchTab: String, CaseIterable, Hashable {
     case shelf
     case teleprompter
     case wirror
@@ -53,7 +53,9 @@ class NotchViewModel: ObservableObject {
 
     /// The currently active tab in the expanded notch.
     @Published var activeNotchTab: NotchTab {
-        didSet { UserDefaults.standard.set(activeNotchTab.rawValue, forKey: "notch.activeTab") }
+        didSet {
+            print(self.activeNotchTab)
+        }
     }
 
     // MARK: - Teleprompter

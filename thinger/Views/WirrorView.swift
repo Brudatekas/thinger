@@ -49,6 +49,7 @@ struct WirrorView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .aspectRatio(1, contentMode: .fit)
         .onAppear {
             wvm.startSession()
         }
@@ -128,9 +129,11 @@ struct WirrorView: View {
                     isMirrored: wvm.isMirrored
                 )
                 .clipShape(ContainerRelativeShape())
+                .aspectRatio(1, contentMode: .fit)
             } else {
                 ContainerRelativeShape()
                     .fill(Color.black.opacity(0.8))
+                    .aspectRatio(1, contentMode: .fit)
             }
 
             // Brightness overlay

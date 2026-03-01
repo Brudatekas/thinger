@@ -314,6 +314,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func handleTeleprompterKey(_ event: NSEvent) -> Bool {
         // Only respond to ⌘+key combos
         guard event.modifierFlags.contains(.command) else { return false }
+        // Only respond if the teleprompter tab is currently active
+        guard viewModel.activeNotchTab == .teleprompter else { return false }
 
         let tvm = viewModel.teleprompterVM
         let config = NotchConfiguration.shared
